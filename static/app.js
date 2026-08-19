@@ -489,7 +489,6 @@ function clearEmojiPickerTimer() {
 // Emoji throwing animation
 function throwEmoji(emoji, sourcePicker, targetCard) {
     const flyingEmoji = document.createElement('div');
-    flyingEmoji.className = 'flying-emoji';
     flyingEmoji.textContent = emoji;
 
     const targetRect = targetCard.getBoundingClientRect();
@@ -520,27 +519,35 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
             break;
     }
 
-    flyingEmoji.style.left = startX + 'px';
-    flyingEmoji.style.top = startY + 'px';
-    flyingEmoji.style.position = 'fixed';
-
-    const deltaX = targetX - startX;
-    const deltaY = targetY - startY;
-
-    flyingEmoji.style.setProperty('--mid-x', (deltaX * 0.5) + 'px');
-    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 80) + 'px');
-    flyingEmoji.style.setProperty('--target-x', deltaX + 'px');
-    flyingEmoji.style.setProperty('--target-y', deltaY + 'px');
+    // Inline styles for immediate visibility
+    flyingEmoji.style.cssText = `
+        position: fixed;
+        left: ${startX}px;
+        top: ${startY}px;
+        font-size: 64px;
+        pointer-events: none;
+        z-index: 999999;
+        filter: drop-shadow(0 0 12px rgba(234, 88, 12, 0.9));
+        transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
 
     document.body.appendChild(flyingEmoji);
 
-    // Force reflow to ensure animation starts
-    void flyingEmoji.offsetWidth;
+    console.log(`Emoji ${emoji} spawned at (${startX}, ${startY}) targeting (${targetX}, ${targetY})`);
+    console.log('Element in DOM:', document.body.contains(flyingEmoji));
+    console.log('Computed style:', window.getComputedStyle(flyingEmoji).position);
 
-    // Add console log for debugging
-    console.log(`Emoji ${emoji} spawned at (${startX}, ${startY}) targeting (${targetX}, ${targetY})`, flyingEmoji);
+    // Animate using transition (simpler than keyframes)
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            flyingEmoji.style.left = targetX + 'px';
+            flyingEmoji.style.top = targetY + 'px';
+            flyingEmoji.style.transform = 'rotate(360deg) scale(0.5)';
+            flyingEmoji.style.opacity = '0';
+        });
+    });
 
     setTimeout(() => {
         flyingEmoji.remove();
-    }, 1500);
+    }, 2000);
 }
