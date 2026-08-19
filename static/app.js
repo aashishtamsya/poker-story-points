@@ -225,6 +225,18 @@ function updateRoomState(state) {
     }
     // Don't hide panel if revealed - let user keep it open to edit
 
+    // Restore selected vote button state
+    const currentPlayerData = state.players.find(p => p.name === currentPlayer.name);
+    if (currentPlayerData && currentPlayerData.vote !== undefined) {
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            if (parseInt(btn.dataset.vote) === currentPlayerData.vote) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+    }
+
     // Update host controls
     if (currentPlayer.isHost) {
         const startBtn = document.getElementById('startBtn');
