@@ -1,7 +1,8 @@
 let ws;
 let currentPlayer = {
     name: '',
-    isHost: false
+    isHost: false,
+    isSpectator: false
 };
 let roomCode = '';
 let countdownTimer = null;
@@ -31,7 +32,9 @@ roleBtns.forEach(btn => {
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
-    const isHost = document.querySelector('.role-btn.active').dataset.role === 'host';
+    const role = document.querySelector('.role-btn.active').dataset.role;
+    const isHost = role === 'host';
+    const isSpectator = role === 'spectator';
     const enteredRoomCode = roomCodeInput.value.trim();
 
     if (!name) return;
@@ -40,7 +43,7 @@ joinForm.addEventListener('submit', (e) => {
         return;
     }
 
-    currentPlayer = { name, isHost };
+    currentPlayer = { name, isHost, isSpectator };
     roomCode = enteredRoomCode;
     connectWebSocket();
 });
@@ -55,6 +58,7 @@ function connectWebSocket() {
             data: {
                 name: currentPlayer.name,
                 isHost: currentPlayer.isHost,
+                isSpectator: currentPlayer.isSpectator,
                 roomCode: roomCode
             }
         }));
@@ -216,9 +220,9 @@ function updateRoomState(state) {
         bottomStats.classList.remove('active');
     }
 
-    // Show/hide vote panel (keep open after reveal if editing)
+    // Show/hide vote panel (keep open after reveal if editing, hide for spectators)
     const votePanel = document.getElementById('votePanel');
-    if (state.votingActive && !state.revealed) {
+    if (!currentPlayer.isSpectator && state.votingActive && !state.revealed) {
         votePanel.classList.add('active');
     } else if (!state.revealed) {
         votePanel.classList.remove('active');

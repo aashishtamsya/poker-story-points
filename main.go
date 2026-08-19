@@ -13,11 +13,12 @@ var upgrader = websocket.Upgrader{
 }
 
 type Player struct {
-	Name     string          `json:"name"`
-	IsHost   bool            `json:"isHost"`
-	Vote     *int            `json:"vote,omitempty"`
-	Conn     *websocket.Conn `json:"-"`
-	RoomCode string          `json:"-"`
+	Name        string          `json:"name"`
+	IsHost      bool            `json:"isHost"`
+	IsSpectator bool            `json:"isSpectator"`
+	Vote        *int            `json:"vote,omitempty"`
+	Conn        *websocket.Conn `json:"-"`
+	RoomCode    string          `json:"-"`
 }
 
 type Room struct {
@@ -69,6 +70,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			data := msg.Data.(map[string]interface{})
 			name := data["name"].(string)
 			isHost := data["isHost"].(bool)
+			isSpectator, _ := data["isSpectator"].(bool)
 			roomCode := data["roomCode"].(string)
 
 			if roomCode == "" {
@@ -77,10 +79,11 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 			room = getOrCreateRoom(roomCode)
 			player = &Player{
-				Name:     name,
-				IsHost:   isHost,
-				Conn:     conn,
-				RoomCode: roomCode,
+				Name:        name,
+				IsHost:      isHost,
+				IsSpectator: isSpectator,
+				Conn:        conn,
+				RoomCode:    roomCode,
 			}
 
 			room.mu.Lock()
@@ -115,10 +118,10 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 				room.mu.Lock()
 				player.Vote = &vote
 
-				// Check if all players voted
+				// Check if all non-spectator players voted
 				allVoted := true
 				for _, p := range room.Players {
-					if p.Vote == nil {
+					if !p.IsSpectator && p.Vote == nil {
 						allVoted = false
 						break
 					}
