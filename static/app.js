@@ -233,7 +233,7 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = isCurrentPlayer ? `${player.name} (You)` : player.name;
 
-        // Add emoji picker for other players (no flying animation, just tooltip)
+        // Add emoji picker for other players with flying animation
         if (player.name !== currentPlayer.name) {
             const emojiPicker = document.createElement('div');
             emojiPicker.className = 'emoji-picker';
@@ -244,8 +244,7 @@ function updateRoomState(state) {
                 btn.textContent = emoji;
                 btn.onclick = (e) => {
                     e.stopPropagation();
-                    // Just visual feedback on target card - no flying animation
-                    showEmojiOnCard(emoji, card);
+                    throwEmojiFromPicker(emoji, btn, card);
                 };
                 emojiPicker.appendChild(btn);
             });
@@ -490,7 +489,39 @@ function triggerConfetti() {
 }
 
 
-// Show emoji briefly on target card (simple feedback, no flying)
+// Throw emoji from picker button to target card
+function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
+    const flyingEmoji = document.createElement('div');
+    flyingEmoji.textContent = emoji;
+    flyingEmoji.className = 'flying-emoji-simple';
+
+    // Get start and end positions
+    const btnRect = sourceBtn.getBoundingClientRect();
+    const cardRect = targetCard.getBoundingClientRect();
+
+    const startX = btnRect.left + btnRect.width / 2;
+    const startY = btnRect.top + btnRect.height / 2;
+    const endX = cardRect.left + cardRect.width / 2;
+    const endY = cardRect.top + cardRect.height / 2;
+
+    // Set initial position
+    flyingEmoji.style.left = startX + 'px';
+    flyingEmoji.style.top = startY + 'px';
+
+    document.body.appendChild(flyingEmoji);
+
+    // Trigger animation after render
+    requestAnimationFrame(() => {
+        flyingEmoji.style.left = endX + 'px';
+        flyingEmoji.style.top = endY + 'px';
+        flyingEmoji.style.opacity = '0';
+        flyingEmoji.style.transform = 'scale(1.5) rotate(360deg)';
+    });
+
+    setTimeout(() => flyingEmoji.remove(), 600);
+}
+
+// Show emoji briefly on target card (fallback)
 function showEmojiOnCard(emoji, card) {
     const emojiEl = document.createElement('div');
     emojiEl.textContent = emoji;
@@ -505,6 +536,6 @@ function showEmojiOnCard(emoji, card) {
         animation: emoji-pop 800ms ease-out forwards;
     `;
     card.appendChild(emojiEl);
-    
+
     setTimeout(() => emojiEl.remove(), 800);
 }
