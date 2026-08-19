@@ -489,18 +489,17 @@ function triggerConfetti() {
 }
 
 
-// Throw emoji from screen edge to target card
+// Throw emoji from screen edge to target card with bounce
 function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
-    console.log('=== EMOJI THROW DEBUG ===');
-    console.log('Emoji:', emoji);
+    console.log('=== EMOJI THROW ===');
 
     const flyingEmoji = document.createElement('div');
     flyingEmoji.textContent = emoji;
 
-    // Get target position
+    // Get target position (top of card for bounce effect)
     const cardRect = targetCard.getBoundingClientRect();
-    const endX = cardRect.left + cardRect.width / 2;
-    const endY = cardRect.top + cardRect.height / 2;
+    const impactX = cardRect.left + cardRect.width / 2;
+    const impactY = cardRect.top - 10; // Hit top edge
 
     // Start from random screen edge
     const edges = ['top', 'right', 'bottom', 'left'];
@@ -510,63 +509,57 @@ function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
     switch(edge) {
         case 'top':
             startX = Math.random() * window.innerWidth;
-            startY = -50;
+            startY = -80;
             break;
         case 'right':
-            startX = window.innerWidth + 50;
+            startX = window.innerWidth + 80;
             startY = Math.random() * window.innerHeight;
             break;
         case 'bottom':
             startX = Math.random() * window.innerWidth;
-            startY = window.innerHeight + 50;
+            startY = window.innerHeight + 80;
             break;
         case 'left':
-            startX = -50;
+            startX = -80;
             startY = Math.random() * window.innerHeight;
             break;
     }
 
-    console.log('Edge:', edge);
-    console.log('Start:', startX, startY);
-    console.log('End:', endX, endY);
+    console.log('Flying from', edge, '→ card');
 
-    // Inline styles - 24px (90/4 ≈ 22.5px)
+    // Initial position
     flyingEmoji.style.cssText = `
         position: fixed;
         left: ${startX}px;
         top: ${startY}px;
-        font-size: 24px;
-        color: #EA580C;
-        background: rgba(255, 0, 0, 0.3);
-        padding: 4px;
-        border: 2px solid yellow;
+        font-size: 32px;
         pointer-events: none;
         z-index: 999999;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) rotate(0deg);
         opacity: 1;
-        transition: all 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        filter: drop-shadow(0 2px 8px rgba(234, 88, 12, 0.8));
     `;
 
     document.body.appendChild(flyingEmoji);
 
-    console.log('Element added to DOM:', document.body.contains(flyingEmoji));
-    console.log('Visible dimensions:', flyingEmoji.offsetWidth, flyingEmoji.offsetHeight);
-
-    // Trigger animation after render
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            console.log('Animation starting to', endX, endY);
-            flyingEmoji.style.left = endX + 'px';
-            flyingEmoji.style.top = endY + 'px';
-            flyingEmoji.style.transform = 'translate(-50%, -50%) scale(1.5) rotate(360deg)';
-            flyingEmoji.style.opacity = '0.2';
-        });
-    });
-
+    // Phase 1: Fly to card (600ms)
     setTimeout(() => {
-        console.log('Removing emoji');
-        flyingEmoji.remove();
-    }, 1200);
+        flyingEmoji.style.transition = 'all 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        flyingEmoji.style.left = impactX + 'px';
+        flyingEmoji.style.top = impactY + 'px';
+        flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(360deg) scale(1.2)';
+    }, 10);
+
+    // Phase 2: Bounce and fall (400ms)
+    setTimeout(() => {
+        flyingEmoji.style.transition = 'all 400ms cubic-bezier(0.6, 0.04, 0.98, 0.34)';
+        flyingEmoji.style.top = (impactY + 80) + 'px';
+        flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(400deg) scale(0.6)';
+        flyingEmoji.style.opacity = '0';
+    }, 620);
+
+    // Cleanup
+    setTimeout(() => flyingEmoji.remove(), 1100);
 }
 
 // Show emoji briefly on target card (fallback)
