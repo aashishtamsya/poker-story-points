@@ -362,7 +362,63 @@
             margin-bottom: 8px;
             transition: all 240ms ease;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+        }
+
+        .edit-vote-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface-elevated);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 180ms ease;
+            z-index: 5;
+        }
+
+        .card:hover .edit-vote-btn {
+            display: flex;
+        }
+
+        .edit-vote-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary);
+        }
+
+        .edit-vote-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--primary);
+        }
+
+        .edit-vote-btn:hover svg {
+            stroke: #000;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease;
+        }
+
+        .edit-vote-btn:hover .tooltip {
+            opacity: 1;
         }
 
         .card.waiting {

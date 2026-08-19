@@ -103,6 +103,24 @@ function updateRoomState(state) {
 
         if (state.revealed && player.vote !== undefined) {
             card.textContent = player.vote;
+
+            // Add edit button for current player
+            if (player.name === currentPlayer.name) {
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-vote-btn';
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    openVotePanelForEdit();
+                };
+                editBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    <span class="tooltip">Change my card</span>
+                `;
+                card.appendChild(editBtn);
+            }
         } else if (player.hasVoted || player.vote !== undefined) {
             card.classList.add('voted');
             card.textContent = '✓';
@@ -179,13 +197,14 @@ function updateRoomState(state) {
         bottomStats.classList.remove('active');
     }
 
-    // Show/hide vote panel
+    // Show/hide vote panel (keep open after reveal if editing)
     const votePanel = document.getElementById('votePanel');
     if (state.votingActive && !state.revealed) {
         votePanel.classList.add('active');
-    } else {
+    } else if (!state.revealed) {
         votePanel.classList.remove('active');
     }
+    // Don't hide panel if revealed - let user keep it open to edit
 
     // Update host controls
     if (currentPlayer.isHost) {
@@ -303,6 +322,12 @@ document.querySelectorAll('.vote-btn').forEach(btn => {
         }));
     });
 });
+
+// Open vote panel for editing after reveal
+function openVotePanelForEdit() {
+    const votePanel = document.getElementById('votePanel');
+    votePanel.classList.add('active');
+}
 
 // Emoji throwing animation
 function throwEmoji(emoji, sourceBtn, targetCard) {
