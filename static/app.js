@@ -15,6 +15,34 @@ const roomCodeInput = document.getElementById('roomCodeInput');
 const roomCodeGroup = document.getElementById('roomCodeGroup');
 const roleBtns = document.querySelectorAll('.role-btn');
 
+// Parse URL params for direct room join
+const urlParams = new URLSearchParams(window.location.search);
+const urlRoom = urlParams.get('room');
+const urlRole = urlParams.get('role');
+
+if (urlRoom) {
+    roomCodeInput.value = urlRoom;
+    roomCodeGroup.classList.remove('hidden');
+
+    if (urlRole === 'member' || urlRole === 'spectator') {
+        roleBtns.forEach(b => {
+            b.classList.remove('active');
+            if (b.dataset.role === urlRole) {
+                b.classList.add('active');
+            }
+        });
+    } else {
+        // Default to member if room provided but no valid role
+        roleBtns.forEach(b => {
+            b.classList.remove('active');
+            if (b.dataset.role === 'member') {
+                b.classList.add('active');
+            }
+        });
+    }
+    nameInput.focus();
+}
+
 roleBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         roleBtns.forEach(b => b.classList.remove('active'));
@@ -47,6 +75,64 @@ joinForm.addEventListener('submit', (e) => {
     roomCode = enteredRoomCode;
     connectWebSocket();
 });
+
+// Share Modal Logic
+const shareBtn = document.getElementById('shareBtn');
+const shareModal = document.getElementById('shareModal');
+const closeShareModal = document.getElementById('closeShareModal');
+const memberLinkInput = document.getElementById('memberLinkInput');
+const spectatorLinkInput = document.getElementById('spectatorLinkInput');
+
+shareBtn?.addEventListener('click', () => {
+    shareModal.classList.add('active');
+});
+
+closeShareModal?.addEventListener('click', () => {
+    shareModal.classList.remove('active');
+});
+
+shareModal?.addEventListener('click', (e) => {
+    if (e.target === shareModal) {
+        shareModal.classList.remove('active');
+    }
+});
+
+// Copy button handlers
+document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const targetId = btn.dataset.target;
+        const input = document.getElementById(targetId);
+
+        try {
+            await navigator.clipboard.writeText(input.value);
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            // Fallback for older browsers
+            input.select();
+            document.execCommand('copy');
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+            }, 2000);
+        }
+    });
+});
+
+function generateShareLinks(roomCode) {
+    const baseUrl = window.location.origin;
+    const memberLink = `${baseUrl}/?room=${roomCode}&role=member`;
+    const spectatorLink = `${baseUrl}/?room=${roomCode}&role=spectator`;
+
+    memberLinkInput.value = memberLink;
+    spectatorLinkInput.value = spectatorLink;
+}
 
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -86,6 +172,8 @@ function handleMessage(msg) {
 
             if (msg.data.isHost) {
                 document.getElementById('hostControls').classList.remove('hidden');
+                document.getElementById('shareBtn').classList.remove('hidden');
+                generateShareLinks(roomCode);
             }
             break;
 

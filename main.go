@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"sync"
@@ -228,14 +230,19 @@ func removePlayer(room *Room, player *Player) {
 }
 
 func generateRoomCode() string {
-	return "ROOM-" + randomString(6)
+	return randomString(8)
 }
 
 func randomString(n int) string {
-	const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // Removed ambiguous chars: I, O, 0, 1
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letters[i%len(letters)]
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			// Fallback to a simple timestamp-based code if crypto/rand fails
+			return "FALLBACK"
+		}
+		b[i] = letters[num.Int64()]
 	}
 	return string(b)
 }

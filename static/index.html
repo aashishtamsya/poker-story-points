@@ -188,6 +188,12 @@
             z-index: 100;
         }
 
+        .room-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .room-dropdown {
             display: flex;
             align-items: center;
@@ -200,6 +206,145 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
+        }
+
+        .share-btn {
+            padding: 8px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 200ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease;
+        }
+
+        .share-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .share-modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .share-modal-header {
+            margin-bottom: 24px;
+        }
+
+        .share-modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 8px 0;
+        }
+
+        .share-modal-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .share-link-group {
+            margin-bottom: 20px;
+        }
+
+        .share-link-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .share-link-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .share-link-input input {
+            flex: 1;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            padding: 10px 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: var(--accent);
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 200ms ease;
+            margin-top: 8px;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--bg);
         }
 
         .user-profile {
@@ -809,11 +954,22 @@
         <!-- Game Screen -->
         <div class="game-screen" id="gameScreen">
             <div class="top-nav">
-                <div class="room-dropdown">
-                    <span id="displayRoomCode"></span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <div class="room-info">
+                    <div class="room-dropdown">
+                        <span id="displayRoomCode"></span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <button class="share-btn hidden" id="shareBtn" title="Share room links">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar"></div>
@@ -869,6 +1025,34 @@
                     <div class="stat-label">Average</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-content">
+            <div class="share-modal-header">
+                <h3>Share Room Links</h3>
+                <p>Share these links with your team to join this room</p>
+            </div>
+
+            <div class="share-link-group">
+                <label>For Team Members (Voting)</label>
+                <div class="share-link-input">
+                    <input type="text" id="memberLinkInput" readonly>
+                    <button class="copy-btn" data-target="memberLinkInput">Copy</button>
+                </div>
+            </div>
+
+            <div class="share-link-group">
+                <label>For Spectators (View Only)</label>
+                <div class="share-link-input">
+                    <input type="text" id="spectatorLinkInput" readonly>
+                    <button class="copy-btn" data-target="spectatorLinkInput">Copy</button>
+                </div>
+            </div>
+
+            <button class="modal-close-btn" id="closeShareModal">Close</button>
         </div>
     </div>
 
