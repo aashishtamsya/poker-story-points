@@ -5,6 +5,7 @@ let currentPlayer = {
 };
 let roomCode = '';
 let countdownTimer = null;
+let emojiPickerTimer = null;
 
 // Join Screen Logic
 const joinForm = document.getElementById('joinForm');
@@ -144,8 +145,26 @@ function updateRoomState(state) {
             btn.onclick = (e) => {
                 e.stopPropagation();
                 throwEmoji(emoji, btn, card);
+                hideEmojiPicker(emojiPicker);
             };
             emojiPicker.appendChild(btn);
+        });
+
+        // Handle hover with auto-dismiss
+        playerDiv.addEventListener('mouseenter', () => {
+            showEmojiPicker(emojiPicker);
+        });
+
+        playerDiv.addEventListener('mouseleave', () => {
+            startEmojiPickerDismissTimer(emojiPicker);
+        });
+
+        emojiPicker.addEventListener('mouseenter', () => {
+            clearEmojiPickerTimer();
+        });
+
+        emojiPicker.addEventListener('mouseleave', () => {
+            hideEmojiPicker(emojiPicker);
         });
 
         playerDiv.appendChild(emojiPicker);
@@ -327,6 +346,32 @@ document.querySelectorAll('.vote-btn').forEach(btn => {
 function openVotePanelForEdit() {
     const votePanel = document.getElementById('votePanel');
     votePanel.classList.add('active');
+}
+
+// Emoji picker show/hide functions
+function showEmojiPicker(picker) {
+    clearEmojiPickerTimer();
+    picker.classList.add('visible');
+    startEmojiPickerDismissTimer(picker);
+}
+
+function hideEmojiPicker(picker) {
+    clearEmojiPickerTimer();
+    picker.classList.remove('visible');
+}
+
+function startEmojiPickerDismissTimer(picker) {
+    clearEmojiPickerTimer();
+    emojiPickerTimer = setTimeout(() => {
+        picker.classList.remove('visible');
+    }, 3000);
+}
+
+function clearEmojiPickerTimer() {
+    if (emojiPickerTimer) {
+        clearTimeout(emojiPickerTimer);
+        emojiPickerTimer = null;
+    }
 }
 
 // Emoji throwing animation

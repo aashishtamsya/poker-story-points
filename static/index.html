@@ -330,10 +330,9 @@
         .player {
             position: absolute;
             text-align: center;
-            cursor: pointer;
         }
 
-        .player:hover .emoji-picker {
+        .emoji-picker.visible {
             opacity: 1;
             pointer-events: auto;
         }
@@ -660,8 +659,12 @@
         }
 
         .emoji-btn:hover {
-            transform: scale(1.2);
-            border-color: var(--primary);
+            transform: scale(1.1);
+            background: var(--surface-elevated);
+        }
+
+        .emoji-btn:active {
+            transform: scale(0.95);
         }
 
         .flying-emoji {
