@@ -502,7 +502,7 @@
             margin-bottom: 8px;
             transition: all 240ms ease;
             position: relative;
-            overflow: visible;
+            overflow: hidden;
         }
 
         /* Current player highlight */
@@ -614,6 +614,43 @@
             border-color: var(--success);
             box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
         }
+
+        /* Ripple Effect */
+        .card-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .card-ripple.active {
+            animation: ripple 600ms ease-out forwards;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(8);
+                opacity: 0;
+            }
+        }
+
+        /* Vote value colors */
+        .ripple-0 { background: #64748b; }  /* Gray */
+        .ripple-1 { background: #3b82f6; }  /* Blue */
+        .ripple-2 { background: #10b981; }  /* Green */
+        .ripple-3 { background: #f59e0b; }  /* Yellow */
+        .ripple-5 { background: #f97316; }  /* Orange */
+        .ripple-8 { background: #ef4444; }  /* Red */
+        .ripple-13 { background: #a855f7; } /* Purple */
 
         .player-name {
             font-size: 13px;

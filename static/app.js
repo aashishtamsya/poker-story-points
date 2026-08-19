@@ -7,6 +7,7 @@ let currentPlayer = {
 let roomCode = '';
 let countdownTimer = null;
 let confettiFired = false;
+let previousVotes = new Map(); // Track votes for ripple effect
 
 // Join Screen Logic
 const joinForm = document.getElementById('joinForm');
@@ -189,6 +190,25 @@ function handleMessage(msg) {
     }
 }
 
+function triggerRipple(cardElement, voteValue) {
+    // Remove any existing ripple
+    const existingRipple = cardElement.querySelector('.card-ripple');
+    if (existingRipple) {
+        existingRipple.remove();
+    }
+
+    // Create new ripple
+    const ripple = document.createElement('div');
+    ripple.className = `card-ripple ripple-${voteValue}`;
+    cardElement.appendChild(ripple);
+
+    // Trigger animation
+    setTimeout(() => ripple.classList.add('active'), 10);
+
+    // Remove after animation
+    setTimeout(() => ripple.remove(), 650);
+}
+
 function updateRoomState(state) {
     const playersContainer = document.getElementById('playersContainer');
     playersContainer.innerHTML = '';
@@ -200,6 +220,23 @@ function updateRoomState(state) {
 
         const card = document.createElement('div');
         card.className = 'card';
+
+        // Trigger ripple if vote changed
+        if (player.vote !== undefined && !state.revealed) {
+            const prevVote = previousVotes.get(player.name);
+            if (prevVote !== player.vote) {
+                previousVotes.set(player.name, player.vote);
+                // Trigger ripple after DOM render
+                setTimeout(() => {
+                    const renderedCard = Array.from(playersContainer.querySelectorAll('.player')).find(
+                        p => p.querySelector('.player-name')?.textContent.includes(player.name)
+                    )?.querySelector('.card');
+                    if (renderedCard) {
+                        triggerRipple(renderedCard, player.vote);
+                    }
+                }, 50);
+            }
+        }
 
         if (state.revealed && player.vote !== undefined) {
             card.textContent = player.vote;
@@ -247,6 +284,7 @@ function updateRoomState(state) {
             clearInterval(countdownTimer);
             countdownTimer = null;
         }
+        previousVotes.clear(); // Clear tracking on reveal for edit support
         const votes = state.players.filter(p => p.vote !== undefined).map(p => p.vote);
         if (votes.length > 0) {
             // Calculate mode (most common vote)
@@ -293,6 +331,7 @@ function updateRoomState(state) {
         bottomStats.classList.remove('active');
         document.getElementById('cornerStats').classList.remove('active');
         confettiFired = false; // Reset for next round
+        previousVotes.clear(); // Reset vote tracking for ripple effect
     }
 
     // Show/hide vote panel (keep open after reveal if editing, hide for spectators)
