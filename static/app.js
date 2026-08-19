@@ -286,9 +286,10 @@ function updateRoomState(state) {
 
             result.textContent = mode;
 
-            // Show bottom stats
+            // Show stats
             updateBottomStats(votes, counts);
             bottomStats.classList.add('active');
+            document.getElementById('cornerStats').classList.add('active');
         }
     } else if (state.votingActive) {
         result.textContent = '?';
@@ -309,6 +310,7 @@ function updateRoomState(state) {
         }
         result.textContent = '?';
         bottomStats.classList.remove('active');
+        document.getElementById('cornerStats').classList.remove('active');
     }
 
     // Show/hide vote panel (keep open after reveal if editing, hide for spectators)

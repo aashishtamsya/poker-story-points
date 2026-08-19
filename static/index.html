@@ -683,6 +683,27 @@
         }
 
         /* Bottom Stats */
+        /* Corner Stats */
+        .corner-stats {
+            position: fixed;
+            top: 100px;
+            right: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            z-index: 50;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .corner-stats.active {
+            display: flex;
+        }
+
+        /* Bottom Stats */
         .bottom-stats {
             position: fixed;
             bottom: 0;
@@ -691,7 +712,6 @@
             display: none;
             align-items: center;
             justify-content: center;
-            gap: 48px;
             padding: 24px;
             background: var(--surface);
             border-top: 1px solid var(--border);
@@ -1008,10 +1028,8 @@
                 </div>
             </div>
 
-            <div class="bottom-stats" id="bottomStats">
-                <div class="vote-distribution" id="voteDistribution">
-                    <!-- Vote bars dynamically added -->
-                </div>
+            <!-- Right Corner Stats -->
+            <div class="corner-stats" id="cornerStats">
                 <div class="stat-item">
                     <div class="stat-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1025,6 +1043,13 @@
                 <div class="stat-item">
                     <div class="stat-value" id="averageValue">-</div>
                     <div class="stat-label">Average</div>
+                </div>
+            </div>
+
+            <!-- Bottom Vote Distribution -->
+            <div class="bottom-stats" id="bottomStats">
+                <div class="vote-distribution" id="voteDistribution">
+                    <!-- Vote bars dynamically added -->
                 </div>
             </div>
         </div>
