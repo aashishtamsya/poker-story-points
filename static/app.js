@@ -491,9 +491,11 @@ function triggerConfetti() {
 
 // Throw emoji from picker button to target card
 function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
+    console.log('=== EMOJI THROW DEBUG ===');
+    console.log('Emoji:', emoji);
+
     const flyingEmoji = document.createElement('div');
     flyingEmoji.textContent = emoji;
-    flyingEmoji.className = 'flying-emoji-simple';
 
     // Get start and end positions
     const btnRect = sourceBtn.getBoundingClientRect();
@@ -504,21 +506,46 @@ function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
     const endX = cardRect.left + cardRect.width / 2;
     const endY = cardRect.top + cardRect.height / 2;
 
-    // Set initial position
-    flyingEmoji.style.left = startX + 'px';
-    flyingEmoji.style.top = startY + 'px';
+    console.log('Start:', startX, startY);
+    console.log('End:', endX, endY);
+
+    // Inline styles for maximum visibility
+    flyingEmoji.style.cssText = `
+        position: fixed;
+        left: ${startX}px;
+        top: ${startY}px;
+        font-size: 64px;
+        color: #EA580C;
+        background: rgba(255, 0, 0, 0.3);
+        padding: 10px;
+        border: 3px solid yellow;
+        pointer-events: none;
+        z-index: 999999;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        transition: all 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    `;
 
     document.body.appendChild(flyingEmoji);
 
+    console.log('Element added to DOM:', document.body.contains(flyingEmoji));
+    console.log('Visible dimensions:', flyingEmoji.offsetWidth, flyingEmoji.offsetHeight);
+
     // Trigger animation after render
     requestAnimationFrame(() => {
-        flyingEmoji.style.left = endX + 'px';
-        flyingEmoji.style.top = endY + 'px';
-        flyingEmoji.style.opacity = '0';
-        flyingEmoji.style.transform = 'scale(1.5) rotate(360deg)';
+        requestAnimationFrame(() => {
+            console.log('Animation starting...');
+            flyingEmoji.style.left = endX + 'px';
+            flyingEmoji.style.top = endY + 'px';
+            flyingEmoji.style.transform = 'translate(-50%, -50%) scale(1.8) rotate(360deg)';
+            flyingEmoji.style.opacity = '0.3';
+        });
     });
 
-    setTimeout(() => flyingEmoji.remove(), 600);
+    setTimeout(() => {
+        console.log('Removing emoji');
+        flyingEmoji.remove();
+    }, 1000);
 }
 
 // Show emoji briefly on target card (fallback)
