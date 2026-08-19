@@ -76,6 +76,8 @@ function handleMessage(msg) {
             document.getElementById('joinScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
             document.getElementById('displayRoomCode').textContent = roomCode;
+            document.getElementById('userName').textContent = currentPlayer.name;
+            document.getElementById('userAvatar').textContent = currentPlayer.name.charAt(0).toUpperCase();
 
             if (msg.data.isHost) {
                 document.getElementById('hostControls').classList.remove('hidden');
@@ -109,30 +111,18 @@ function updateRoomState(state) {
             card.textContent = '';
         }
 
-        const nameWrapper = document.createElement('div');
-        nameWrapper.className = 'player-name-wrapper';
-
         const nameDiv = document.createElement('div');
         nameDiv.className = 'player-name';
         nameDiv.textContent = player.name;
 
-        nameWrapper.appendChild(nameDiv);
-
-        if (player.isHost) {
-            const crownBadge = document.createElement('span');
-            crownBadge.className = 'host-badge';
-            crownBadge.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>';
-            nameWrapper.appendChild(crownBadge);
-        }
-
         playerDiv.appendChild(card);
-        playerDiv.appendChild(nameWrapper);
+        playerDiv.appendChild(nameDiv);
         playersContainer.appendChild(playerDiv);
     });
 
-    // Update center area
+    // Update center area and stats
     const result = document.getElementById('result');
-    const status = document.getElementById('status');
+    const bottomStats = document.getElementById('bottomStats');
 
     if (state.revealed) {
         if (countdownTimer) {
@@ -147,10 +137,14 @@ function updateRoomState(state) {
             const mode = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
 
             result.textContent = mode;
-            status.textContent = `Most common: ${mode} | Votes: ${votes.join(', ')}`;
+
+            // Show bottom stats
+            updateBottomStats(votes, counts);
+            bottomStats.classList.add('active');
         }
     } else if (state.votingActive) {
         result.textContent = '?';
+        bottomStats.classList.remove('active');
         const votedCount = state.players.filter(p => p.hasVoted || p.vote !== undefined).length;
         const allVoted = votedCount === state.players.length && state.players.length > 0;
 
@@ -159,9 +153,6 @@ function updateRoomState(state) {
         } else if (!allVoted && countdownTimer) {
             clearInterval(countdownTimer);
             countdownTimer = null;
-            status.textContent = `Voting in progress (${votedCount}/${state.players.length})`;
-        } else if (!countdownTimer) {
-            status.textContent = `Voting in progress (${votedCount}/${state.players.length})`;
         }
     } else {
         if (countdownTimer) {
@@ -169,7 +160,7 @@ function updateRoomState(state) {
             countdownTimer = null;
         }
         result.textContent = '?';
-        status.textContent = 'Waiting to start...';
+        bottomStats.classList.remove('active');
     }
 
     // Show/hide vote panel
@@ -208,19 +199,64 @@ function updateRoomState(state) {
 
 function startRevealCountdown() {
     let countdown = 3;
-    const status = document.getElementById('status');
-    status.textContent = `Revealing in ${countdown}...`;
-
     countdownTimer = setInterval(() => {
         countdown--;
-        if (countdown > 0) {
-            status.textContent = `Revealing in ${countdown}...`;
-        } else {
+        if (countdown <= 0) {
             clearInterval(countdownTimer);
             countdownTimer = null;
             ws.send(JSON.stringify({ type: 'reveal' }));
         }
     }, 1000);
+}
+
+function updateBottomStats(votes, counts) {
+    const voteDistribution = document.getElementById('voteDistribution');
+    const agreementValue = document.getElementById('agreementValue');
+    const averageValue = document.getElementById('averageValue');
+
+    // Calculate stats
+    const avg = (votes.reduce((a, b) => a + b, 0) / votes.length).toFixed(1);
+    const maxCount = Math.max(...Object.values(counts));
+    const agreement = ((maxCount / votes.length) * 100).toFixed(0);
+
+    // Update values
+    agreementValue.textContent = `${agreement}%`;
+    averageValue.textContent = avg;
+
+    // Render vote distribution bars
+    voteDistribution.innerHTML = '';
+    const allVotes = [0, 1, 2, 3, 5, 8, 13];
+    allVotes.forEach(vote => {
+        const count = counts[vote] || 0;
+        const height = count > 0 ? (count / maxCount) * 100 : 0;
+
+        const barDiv = document.createElement('div');
+        barDiv.className = 'vote-bar';
+
+        const barContainer = document.createElement('div');
+        barContainer.className = 'bar-container';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${height}%`;
+
+        if (count > 0) {
+            const barCount = document.createElement('span');
+            barCount.className = 'bar-count';
+            barCount.textContent = count;
+            bar.appendChild(barCount);
+        }
+
+        barContainer.appendChild(bar);
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = vote;
+
+        barDiv.appendChild(barContainer);
+        barDiv.appendChild(label);
+        voteDistribution.appendChild(barDiv);
+    });
 }
 
 // Host Controls

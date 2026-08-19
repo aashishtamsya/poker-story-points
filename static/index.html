@@ -174,15 +174,64 @@
             display: none;
         }
 
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .room-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .game-content {
+            margin-top: 80px;
+            margin-bottom: 120px;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 48px;
             padding: 20px 24px;
-            background: var(--surface);
-            border-radius: 12px;
-            border: 1px solid var(--border);
         }
 
         .room-info {
@@ -265,17 +314,10 @@
         }
 
         .result {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--text);
             line-height: 1;
-        }
-
-        .status {
-            margin-top: 12px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
         }
 
         /* Player Positions */
@@ -359,36 +401,11 @@
             box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
         }
 
-        .player-name-wrapper {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            min-width: 80px;
-        }
-
         .player-name {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 400;
             color: var(--text);
-        }
-
-        .host-badge {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .host-badge svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--accent);
+            margin-top: 4px;
         }
 
         /* Vote Panel */
@@ -456,6 +473,97 @@
 
         .hidden {
             display: none;
+        }
+
+        /* Bottom Stats */
+        .bottom-stats {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            padding: 24px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .bottom-stats.active {
+            display: flex;
+        }
+
+        .vote-distribution {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+        }
+
+        .vote-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar-container {
+            width: 48px;
+            height: 80px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            transition: height 300ms ease;
+            position: relative;
+        }
+
+        .bar-count {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .bar-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
         /* Responsive */
@@ -542,37 +650,65 @@
 
         <!-- Game Screen -->
         <div class="game-screen" id="gameScreen">
-            <div class="header">
-                <div class="room-info">
-                    <div class="room-code">Room: <span id="displayRoomCode"></span></div>
+            <div class="top-nav">
+                <div class="room-dropdown">
+                    <span id="displayRoomCode"></span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-                <div class="controls hidden" id="hostControls">
-                    <button id="startBtn">Start Voting</button>
-                    <button id="revealBtn" class="primary hidden">Reveal</button>
-                    <button id="resetBtn" class="hidden">New Round</button>
-                </div>
-            </div>
-
-            <div class="poker-table">
-                <div class="players-container" id="playersContainer">
-                    <!-- Players dynamically added -->
-                </div>
-                <div class="center-area">
-                    <div class="result" id="result">?</div>
-                    <div class="status" id="status">Waiting to start...</div>
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar"></div>
+                    <span id="userName"></span>
+                    <div class="controls hidden" id="hostControls">
+                        <button id="startBtn">Start Voting</button>
+                        <button id="revealBtn" class="primary hidden">Reveal</button>
+                        <button id="resetBtn" class="hidden">New Round</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="vote-panel" id="votePanel">
-                <h3>Select Your Estimate</h3>
-                <div class="vote-options">
-                    <button class="vote-btn" data-vote="0">0</button>
-                    <button class="vote-btn" data-vote="1">1</button>
-                    <button class="vote-btn" data-vote="2">2</button>
-                    <button class="vote-btn" data-vote="3">3</button>
-                    <button class="vote-btn" data-vote="5">5</button>
-                    <button class="vote-btn" data-vote="8">8</button>
-                    <button class="vote-btn" data-vote="13">13</button>
+            <div class="game-content">
+                <div class="poker-table">
+                    <div class="players-container" id="playersContainer">
+                        <!-- Players dynamically added -->
+                    </div>
+                    <div class="center-area">
+                        <div class="result" id="result">?</div>
+                    </div>
+                </div>
+
+                <div class="vote-panel" id="votePanel">
+                    <h3>Select Your Estimate</h3>
+                    <div class="vote-options">
+                        <button class="vote-btn" data-vote="0">0</button>
+                        <button class="vote-btn" data-vote="1">1</button>
+                        <button class="vote-btn" data-vote="2">2</button>
+                        <button class="vote-btn" data-vote="3">3</button>
+                        <button class="vote-btn" data-vote="5">5</button>
+                        <button class="vote-btn" data-vote="8">8</button>
+                        <button class="vote-btn" data-vote="13">13</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-stats" id="bottomStats">
+                <div class="vote-distribution" id="voteDistribution">
+                    <!-- Vote bars dynamically added -->
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value" id="agreementValue">-</div>
+                    <div class="stat-label">Agreement</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="averageValue">-</div>
+                    <div class="stat-label">Average</div>
                 </div>
             </div>
         </div>
