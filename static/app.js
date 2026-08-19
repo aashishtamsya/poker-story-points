@@ -6,6 +6,7 @@ let currentPlayer = {
 };
 let roomCode = '';
 let countdownTimer = null;
+let confettiFired = false;
 
 // Join Screen Logic
 const joinForm = document.getElementById('joinForm');
@@ -255,6 +256,17 @@ function updateRoomState(state) {
 
             result.textContent = mode;
 
+            // Check for unanimous vote (excluding spectators)
+            const nonSpectatorVotes = state.players.filter(p => !p.isSpectator && p.vote !== undefined);
+            const isUnanimous = nonSpectatorVotes.length > 1 &&
+                                nonSpectatorVotes.every(p => p.vote === nonSpectatorVotes[0].vote);
+
+            // Trigger confetti on unanimous vote (once per reveal)
+            if (isUnanimous && !confettiFired) {
+                confettiFired = true;
+                triggerConfetti();
+            }
+
             // Show stats
             updateBottomStats(votes, counts);
             bottomStats.classList.add('active');
@@ -280,6 +292,7 @@ function updateRoomState(state) {
         result.textContent = '?';
         bottomStats.classList.remove('active');
         document.getElementById('cornerStats').classList.remove('active');
+        confettiFired = false; // Reset for next round
     }
 
     // Show/hide vote panel (keep open after reveal if editing, hide for spectators)
@@ -426,5 +439,34 @@ document.querySelectorAll('.vote-btn').forEach(btn => {
 function openVotePanelForEdit() {
     const votePanel = document.getElementById('votePanel');
     votePanel.classList.add('active');
+}
+
+// Confetti celebration on unanimous vote
+function triggerConfetti() {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999999 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        // Burst from center with random colors
+        confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.4, 0.6), y: Math.random() - 0.2 },
+            colors: ['#0D9488', '#EA580C', '#14B8A6', '#F97316']
+        });
+    }, 250);
 }
 
