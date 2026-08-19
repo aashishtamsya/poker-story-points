@@ -522,6 +522,7 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
 
     flyingEmoji.style.left = startX + 'px';
     flyingEmoji.style.top = startY + 'px';
+    flyingEmoji.style.position = 'fixed';
 
     const deltaX = targetX - startX;
     const deltaY = targetY - startY;
@@ -533,10 +534,13 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
 
     document.body.appendChild(flyingEmoji);
 
+    // Force reflow to ensure animation starts
+    void flyingEmoji.offsetWidth;
+
     // Add console log for debugging
-    console.log(`Emoji ${emoji} spawned at (${startX}, ${startY}) targeting (${targetX}, ${targetY})`);
+    console.log(`Emoji ${emoji} spawned at (${startX}, ${startY}) targeting (${targetX}, ${targetY})`, flyingEmoji);
 
     setTimeout(() => {
         flyingEmoji.remove();
-    }, 1400);
+    }, 1500);
 }
