@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: poker-story-points
+    runtime: go
+    buildCommand: go build -o server main.go
+    startCommand: ./server
+    envVars:
+      - key: PORT
+        value: 8080
