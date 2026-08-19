@@ -123,6 +123,29 @@ go.mod               # Go dependencies
 - Mobile Safari 14+
 - Chrome Android 90+
 
+## Deployment
+
+### Render (Free Tier)
+
+1. Push code to GitHub
+2. Sign up at [render.com](https://render.com)
+3. Click "New +" → "Web Service"
+4. Connect your GitHub repository
+5. Render auto-detects `render.yaml` config
+6. Click "Create Web Service"
+7. Wait for build to complete (~2 minutes)
+8. Access your app at `https://your-app-name.onrender.com`
+
+**Note:** Free tier spins down after 15 minutes of inactivity. First request after spin-down takes 30-60 seconds to wake up.
+
+### Alternative Platforms
+
+- **Railway** - Similar to Render, free tier available
+- **Fly.io** - Free tier with always-on option
+- **Heroku** - Paid only (no free tier since Nov 2022)
+
+**GitHub Pages won't work** - requires static files only, no backend support.
+
 ## License
 
 MIT
