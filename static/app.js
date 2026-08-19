@@ -496,55 +496,61 @@ function clearEmojiPickerTimer() {
 function throwEmoji(emoji, sourcePicker, targetCard) {
     const flyingEmoji = document.createElement('div');
     flyingEmoji.textContent = emoji;
-    flyingEmoji.className = 'test-emoji-fly';
 
     const targetRect = targetCard.getBoundingClientRect();
     const targetX = targetRect.left + targetRect.width / 2;
     const targetY = targetRect.top + targetRect.height / 2;
 
-    // Start from CENTER of screen for testing - visible position
-    const startX = window.innerWidth / 2;
-    const startY = window.innerHeight / 2;
+    // Spawn from random edge outside viewport
+    const edges = ['top', 'right', 'bottom', 'left'];
+    const edge = edges[Math.floor(Math.random() * edges.length)];
 
-    // Inline styles with red background for debugging
+    let startX, startY;
+    switch(edge) {
+        case 'top':
+            startX = Math.random() * window.innerWidth;
+            startY = -100;
+            break;
+        case 'right':
+            startX = window.innerWidth + 100;
+            startY = Math.random() * window.innerHeight;
+            break;
+        case 'bottom':
+            startX = Math.random() * window.innerWidth;
+            startY = window.innerHeight + 100;
+            break;
+        case 'left':
+            startX = -100;
+            startY = Math.random() * window.innerHeight;
+            break;
+    }
+
     flyingEmoji.style.cssText = `
         position: fixed !important;
         left: ${startX}px;
         top: ${startY}px;
-        font-size: 80px;
+        font-size: 56px;
         pointer-events: none;
         z-index: 999999;
-        background: rgba(255, 0, 0, 0.5);
-        padding: 20px;
-        border: 5px solid yellow;
-        filter: drop-shadow(0 0 20px rgba(234, 88, 12, 1));
-        transition: all 2s linear;
-        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.8));
+        transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
     `;
 
     document.body.appendChild(flyingEmoji);
 
-    console.log('=== EMOJI DEBUG ===');
-    console.log(`Emoji ${emoji} spawned at CENTER (${startX}, ${startY})`);
-    console.log('Target:', targetX, targetY);
-    console.log('Element in DOM:', document.body.contains(flyingEmoji));
-    console.log('Element:', flyingEmoji);
-    console.log('Visible?', flyingEmoji.offsetWidth > 0, flyingEmoji.offsetHeight > 0);
-    console.log('Z-index:', window.getComputedStyle(flyingEmoji).zIndex);
-    console.log('Position:', window.getComputedStyle(flyingEmoji).position);
-    console.log('Display:', window.getComputedStyle(flyingEmoji).display);
-
-    // Wait a moment, then animate
-    setTimeout(() => {
-        console.log('Starting animation to target...');
-        flyingEmoji.style.left = targetX + 'px';
-        flyingEmoji.style.top = targetY + 'px';
-        flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(360deg) scale(1.5)';
-    }, 100);
+    // Trigger animation after element is in DOM
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            flyingEmoji.style.left = targetX + 'px';
+            flyingEmoji.style.top = targetY + 'px';
+            flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(720deg) scale(0.3)';
+            flyingEmoji.style.opacity = '0';
+        });
+    });
 
     setTimeout(() => {
-        console.log('Removing emoji from DOM');
         flyingEmoji.remove();
-    }, 3000);
+    }, 1300);
 }
