@@ -532,9 +532,9 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
         font-size: 56px;
         pointer-events: none;
         z-index: 999999;
-        filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.8));
+        filter: drop-shadow(0 0 10px rgba(234, 88, 12, 0.9));
         transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(1);
         opacity: 1;
     `;
 
@@ -543,9 +543,9 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
     // Trigger animation after element is in DOM
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            flyingEmoji.style.left = targetX + 'px';
-            flyingEmoji.style.top = targetY + 'px';
-            flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(720deg) scale(0.3)';
+            flyingEmoji.style.left = (targetX - 28) + 'px';  // Center emoji (56px / 2)
+            flyingEmoji.style.top = (targetY - 28) + 'px';
+            flyingEmoji.style.transform = 'rotate(720deg) scale(0.4)';
             flyingEmoji.style.opacity = '0';
         });
     });
