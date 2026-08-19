@@ -384,12 +384,16 @@ function updateBottomStats(votes, counts) {
     agreementValue.textContent = `${agreement}%`;
     averageValue.textContent = avg;
 
-    // Render vote distribution bars
+    // Render vote distribution bars (only show votes with count > 0)
     voteDistribution.innerHTML = '';
     const allVotes = [0, 1, 2, 3, 5, 8, 13];
     allVotes.forEach(vote => {
         const count = counts[vote] || 0;
-        const height = count > 0 ? (count / maxCount) * 100 : 0;
+
+        // Skip if no one voted for this number
+        if (count === 0) return;
+
+        const height = (count / maxCount) * 100;
 
         const barDiv = document.createElement('div');
         barDiv.className = 'vote-bar';
@@ -401,12 +405,10 @@ function updateBottomStats(votes, counts) {
         bar.className = 'bar';
         bar.style.height = `${height}%`;
 
-        if (count > 0) {
-            const barCount = document.createElement('span');
-            barCount.className = 'bar-count';
-            barCount.textContent = count;
-            bar.appendChild(barCount);
-        }
+        const barCount = document.createElement('span');
+        barCount.className = 'bar-count';
+        barCount.textContent = count;
+        bar.appendChild(barCount);
 
         barContainer.appendChild(bar);
 
