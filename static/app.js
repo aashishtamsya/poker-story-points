@@ -141,9 +141,13 @@ function updateRoomState(state) {
         }
         const votes = state.players.filter(p => p.vote !== undefined).map(p => p.vote);
         if (votes.length > 0) {
-            const avg = (votes.reduce((a, b) => a + b, 0) / votes.length).toFixed(1);
-            result.textContent = avg;
-            status.textContent = `Average: ${avg} | Votes: ${votes.join(', ')}`;
+            // Calculate mode (most common vote)
+            const counts = {};
+            votes.forEach(v => counts[v] = (counts[v] || 0) + 1);
+            const mode = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+
+            result.textContent = mode;
+            status.textContent = `Most common: ${mode} | Votes: ${votes.join(', ')}`;
         }
     } else if (state.votingActive) {
         result.textContent = '?';
