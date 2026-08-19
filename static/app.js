@@ -439,5 +439,5 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
 
     setTimeout(() => {
         flyingEmoji.remove();
-    }, 800);
+    }, 1200);
 }
