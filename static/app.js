@@ -233,24 +233,6 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = isCurrentPlayer ? `${player.name} (You)` : player.name;
 
-        // Add emoji picker for other players (simple pop, no flying)
-        if (player.name !== currentPlayer.name) {
-            const emojiPicker = document.createElement('div');
-            emojiPicker.className = 'emoji-picker';
-            const emojis = ['🎯', '✈️', '🧻', '😂', '😊'];
-            emojis.forEach(emoji => {
-                const btn = document.createElement('button');
-                btn.className = 'emoji-btn';
-                btn.textContent = emoji;
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    showEmojiOnCard(emoji, card);
-                };
-                emojiPicker.appendChild(btn);
-            });
-            playerDiv.appendChild(emojiPicker);
-        }
-
         playerDiv.appendChild(card);
         playerDiv.appendChild(nameDiv);
         playersContainer.appendChild(playerDiv);
@@ -489,22 +471,3 @@ function triggerConfetti() {
 }
 
 
-// Throw emoji from screen edge to target card with bounce
-// Show emoji on target card with pop animation
-function showEmojiOnCard(emoji, card) {
-    const emojiEl = document.createElement('div');
-    emojiEl.textContent = emoji;
-    emojiEl.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 48px;
-        pointer-events: none;
-        z-index: 100;
-        animation: emoji-pop 800ms ease-out forwards;
-    `;
-    card.appendChild(emojiEl);
-
-    setTimeout(() => emojiEl.remove(), 800);
-}
