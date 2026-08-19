@@ -226,40 +226,43 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = player.name;
 
-        // Add emoji picker
-        const emojiPicker = document.createElement('div');
-        emojiPicker.className = 'emoji-picker';
-        const emojis = ['🎯', '✈️', '🧻', '😂', '😊'];
-        emojis.forEach(emoji => {
-            const btn = document.createElement('button');
-            btn.className = 'emoji-btn';
-            btn.textContent = emoji;
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                throwEmoji(emoji, emojiPicker, card);
-                // Don't hide picker - allow rapid clicks
-            };
-            emojiPicker.appendChild(btn);
-        });
+        // Add emoji picker only for other players (not current user)
+        if (player.name !== currentPlayer.name) {
+            const emojiPicker = document.createElement('div');
+            emojiPicker.className = 'emoji-picker';
+            const emojis = ['🎯', '✈️', '🧻', '😂', '😊'];
+            emojis.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-btn';
+                btn.textContent = emoji;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    throwEmoji(emoji, emojiPicker, card);
+                    // Don't hide picker - allow rapid clicks
+                };
+                emojiPicker.appendChild(btn);
+            });
 
-        // Handle hover with auto-dismiss
-        playerDiv.addEventListener('mouseenter', () => {
-            showEmojiPicker(emojiPicker);
-        });
+            // Handle hover with auto-dismiss
+            playerDiv.addEventListener('mouseenter', () => {
+                showEmojiPicker(emojiPicker);
+            });
 
-        playerDiv.addEventListener('mouseleave', () => {
-            startEmojiPickerDismissTimer(emojiPicker);
-        });
+            playerDiv.addEventListener('mouseleave', () => {
+                startEmojiPickerDismissTimer(emojiPicker);
+            });
 
-        emojiPicker.addEventListener('mouseenter', () => {
-            clearEmojiPickerTimer();
-        });
+            emojiPicker.addEventListener('mouseenter', () => {
+                clearEmojiPickerTimer();
+            });
 
-        emojiPicker.addEventListener('mouseleave', () => {
-            hideEmojiPicker(emojiPicker);
-        });
+            emojiPicker.addEventListener('mouseleave', () => {
+                hideEmojiPicker(emojiPicker);
+            });
 
-        playerDiv.appendChild(emojiPicker);
+            playerDiv.appendChild(emojiPicker);
+        }
+
         playerDiv.appendChild(card);
         playerDiv.appendChild(nameDiv);
         playersContainer.appendChild(playerDiv);
@@ -525,7 +528,10 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
 
     document.body.appendChild(flyingEmoji);
 
+    // Add console log for debugging
+    console.log(`Emoji ${emoji} spawned at (${startX}, ${startY}) targeting (${targetX}, ${targetY})`);
+
     setTimeout(() => {
         flyingEmoji.remove();
-    }, 1200);
+    }, 1400);
 }
