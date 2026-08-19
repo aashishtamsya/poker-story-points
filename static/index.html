@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning Poker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,14 +14,30 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #0D9488;
+            --secondary: #14B8A6;
+            --accent: #EA580C;
+            --bg: #0a0e14;
+            --surface: #141b24;
+            --surface-elevated: #1c2634;
+            --text: #e0e6ed;
+            --text-muted: #94a3b8;
+            --border: #2d3748;
+            --success: #10b981;
+            --radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1419;
-            color: #e0e0e0;
-            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
+            line-height: 1.5;
         }
 
         .container {
@@ -29,43 +48,56 @@
 
         /* Join Screen */
         .join-screen {
-            max-width: 400px;
+            max-width: 420px;
             margin: 0 auto;
-            background: #1a1f2e;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background: var(--surface);
+            padding: 48px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
 
         .join-screen h1 {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
+            font-size: 28px;
+            font-weight: 700;
             text-align: center;
-            color: #6eb5ff;
+            color: var(--text);
+            letter-spacing: -0.02em;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #b0b0b0;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            background: #242b3d;
-            border: 1px solid #3a4456;
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-size: 16px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 180ms ease;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #6eb5ff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
         }
 
         .role-selector {
@@ -77,45 +109,64 @@
         .role-btn {
             flex: 1;
             padding: 12px;
-            background: #242b3d;
-            border: 2px solid #3a4456;
-            border-radius: 6px;
-            color: #e0e0e0;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 180ms ease;
         }
 
         .role-btn:hover {
-            border-color: #6eb5ff;
+            border-color: var(--primary);
+            background: var(--surface-elevated);
+        }
+
+        .role-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
         }
 
         .role-btn.active {
-            background: #6eb5ff;
-            border-color: #6eb5ff;
-            color: #0f1419;
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
         }
 
         .btn {
             width: 100%;
-            padding: 14px;
-            background: #6eb5ff;
+            padding: 14px 24px;
+            background: var(--accent);
             border: none;
-            border-radius: 6px;
-            color: #0f1419;
-            font-size: 16px;
+            border-radius: var(--radius);
+            color: #000;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 180ms ease;
         }
 
         .btn:hover {
-            background: #5da5ef;
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
         }
 
         .btn:disabled {
-            background: #3a4456;
-            color: #6b7280;
+            background: var(--border);
+            color: var(--text-muted);
             cursor: not-allowed;
+            transform: none;
         }
 
         /* Game Screen */
@@ -127,10 +178,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: #1a1f2e;
+            margin-bottom: 48px;
+            padding: 20px 24px;
+            background: var(--surface);
             border-radius: 12px;
+            border: 1px solid var(--border);
         }
 
         .room-info {
@@ -141,12 +193,14 @@
 
         .room-code {
             font-size: 14px;
-            color: #b0b0b0;
+            color: var(--text-muted);
+            font-weight: 500;
         }
 
         .room-code span {
-            color: #6eb5ff;
+            color: var(--primary);
             font-weight: 600;
+            font-family: 'Inter', monospace;
         }
 
         .controls {
@@ -156,27 +210,34 @@
 
         .controls button {
             padding: 10px 20px;
-            background: #242b3d;
-            border: 1px solid #3a4456;
-            border-radius: 6px;
-            color: #e0e0e0;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 180ms ease;
         }
 
         .controls button:hover {
-            border-color: #6eb5ff;
-            background: #2a3245;
+            border-color: var(--primary);
+            background: var(--bg);
+        }
+
+        .controls button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
         }
 
         .controls button.primary {
-            background: #6eb5ff;
-            border-color: #6eb5ff;
-            color: #0f1419;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
         }
 
         .controls button.primary:hover {
-            background: #5da5ef;
+            opacity: 0.9;
         }
 
         /* Poker Table */
@@ -186,6 +247,7 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 60px 0;
+            min-height: 600px;
         }
 
         .center-area {
@@ -193,24 +255,27 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #242b3d;
-            padding: 60px 120px;
-            border-radius: 24px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            background: var(--surface);
+            padding: 48px 80px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             text-align: center;
-            min-width: 300px;
+            min-width: 280px;
         }
 
         .result {
-            font-size: 72px;
+            font-size: 64px;
             font-weight: 700;
-            color: #6eb5ff;
+            color: var(--primary);
+            line-height: 1;
         }
 
         .status {
             margin-top: 12px;
-            color: #b0b0b0;
+            color: var(--text-muted);
             font-size: 14px;
+            font-weight: 500;
         }
 
         /* Player Positions */
@@ -237,45 +302,103 @@
         .card {
             width: 80px;
             height: 120px;
-            background: #242b3d;
-            border: 2px solid #6eb5ff;
-            border-radius: 8px;
+            background: var(--surface-elevated);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
-            color: #6eb5ff;
+            color: var(--primary);
             margin-bottom: 8px;
-            transition: all 0.3s;
+            transition: all 240ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card.waiting {
+            background: var(--surface);
+            border-color: var(--border);
+            color: transparent;
+        }
+
+        .card.waiting::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(13, 148, 136, 0.1),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
         }
 
         .card.hidden {
-            background: #1a1f2e;
-            border-color: #3a4456;
+            background: var(--surface);
+            border-color: var(--border);
             color: transparent;
         }
 
         .card.voted {
-            border-color: #4ade80;
+            border-color: var(--success);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+        }
+
+        .player-name-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            min-width: 80px;
         }
 
         .player-name {
             font-size: 14px;
-            color: #e0e0e0;
+            font-weight: 500;
+            color: var(--text);
         }
 
-        .player.host .player-name::after {
-            content: " 👑";
+        .host-badge {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .host-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent);
         }
 
         /* Vote Panel */
         .vote-panel {
             display: none;
-            margin-top: 40px;
-            padding: 30px;
-            background: #1a1f2e;
+            margin-top: 48px;
+            padding: 32px;
+            background: var(--surface);
             border-radius: 12px;
+            border: 1px solid var(--border);
             text-align: center;
         }
 
@@ -284,8 +407,10 @@
         }
 
         .vote-panel h3 {
-            margin-bottom: 20px;
-            color: #6eb5ff;
+            margin-bottom: 24px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
         }
 
         .vote-options {
@@ -296,43 +421,109 @@
         }
 
         .vote-btn {
-            width: 70px;
-            height: 100px;
-            background: #242b3d;
-            border: 2px solid #3a4456;
-            border-radius: 8px;
-            color: #e0e0e0;
+            width: 72px;
+            height: 104px;
+            background: var(--surface-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
             font-size: 28px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 200ms ease;
         }
 
         .vote-btn:hover {
-            border-color: #6eb5ff;
+            border-color: var(--primary);
             transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+        }
+
+        .vote-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .vote-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
         }
 
         .vote-btn.selected {
-            background: #6eb5ff;
-            border-color: #6eb5ff;
-            color: #0f1419;
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
         }
 
         .hidden {
             display: none;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .join-screen {
+                padding: 32px 24px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .center-area {
+                padding: 32px 48px;
+            }
+
+            .result {
+                font-size: 48px;
+            }
+
+            .poker-table {
+                padding: 40px 0;
+            }
+
+            .players-container {
+                height: 500px;
+            }
+
+            .card {
+                width: 64px;
+                height: 96px;
+                font-size: 24px;
+            }
+
+            .vote-btn {
+                width: 60px;
+                height: 88px;
+                font-size: 22px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .card.waiting::before {
+                animation: none;
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Join Screen -->
     <div class="container">
+        <!-- Join Screen -->
         <div class="join-screen" id="joinScreen">
             <h1>Planning Poker</h1>
             <form id="joinForm">
                 <div class="form-group">
-                    <label>Your Name</label>
-                    <input type="text" id="nameInput" placeholder="Enter your name" required>
+                    <label for="nameInput">Your Name</label>
+                    <input type="text" id="nameInput" placeholder="Enter your name" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label>Join as</label>
@@ -341,9 +532,9 @@
                         <button type="button" class="role-btn" data-role="member">Member</button>
                     </div>
                 </div>
-                <div class="form-group" id="roomCodeGroup" style="display: none;">
-                    <label>Room Code</label>
-                    <input type="text" id="roomCodeInput" placeholder="Enter room code">
+                <div class="form-group hidden" id="roomCodeGroup">
+                    <label for="roomCodeInput">Room Code</label>
+                    <input type="text" id="roomCodeInput" placeholder="Enter room code" autocomplete="off">
                 </div>
                 <button type="submit" class="btn">Join Session</button>
             </form>
@@ -355,16 +546,16 @@
                 <div class="room-info">
                     <div class="room-code">Room: <span id="displayRoomCode"></span></div>
                 </div>
-                <div class="controls" id="hostControls" style="display: none;">
+                <div class="controls hidden" id="hostControls">
                     <button id="startBtn">Start Voting</button>
-                    <button id="revealBtn" style="display: none;" class="primary">Reveal</button>
-                    <button id="resetBtn" style="display: none;">New Round</button>
+                    <button id="revealBtn" class="primary hidden">Reveal</button>
+                    <button id="resetBtn" class="hidden">New Round</button>
                 </div>
             </div>
 
             <div class="poker-table">
                 <div class="players-container" id="playersContainer">
-                    <!-- Players will be added here dynamically -->
+                    <!-- Players dynamically added -->
                 </div>
                 <div class="center-area">
                     <div class="result" id="result">?</div>
