@@ -8,8 +8,8 @@ Real-time collaborative story point estimation tool for agile teams. Teams gathe
 - **Auto-reveal** - Votes reveal automatically when all players submit, with 3-second countdown
 - **Mode Calculation** - Shows most common vote (consensus) instead of average
 - **Vote Editing** - Change your vote anytime before reveal, or edit after reveal if needed
+- **Ripple Effect** - Color-coded ripple animation on cards when votes are cast (instant visual feedback)
 - **Spectator Mode** - Join as observer without voting rights
-- **Emoji Reactions** - Throw emojis at other players' cards with cinematic flying animations
 - **Vote Distribution** - Visual bar chart showing how votes are spread
 - **Agreement Metric** - Real-time percentage showing team consensus level
 - **Dark Theme** - Premium glass-morphism UI with teal/orange accent colors
@@ -72,11 +72,10 @@ Server starts on `http://localhost:8080`
 
 ## Interactive Features
 
-**Emoji Reactions:**
-- Hover over any player's card
-- Emoji picker appears
-- Click emoji to throw from random screen edge
-- Rapid-fire clicking supported
+**Ripple Feedback:**
+- Color-coded ripple expands from card when vote is cast
+- Each story point value has unique color (0=gray, 1=blue, 2=green, 3=yellow, 5=orange, 8=red, 13=purple)
+- Smooth 600ms animation contained within card bounds
 
 **Vote Changes:**
 - Change vote anytime before reveal
