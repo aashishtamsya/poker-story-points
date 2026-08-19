@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Poker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1419;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        /* Join Screen */
+        .join-screen {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1a1f2e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .join-screen h1 {
+            margin-bottom: 30px;
+            text-align: center;
+            color: #6eb5ff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #242b3d;
+            border: 1px solid #3a4456;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #6eb5ff;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            background: #242b3d;
+            border: 2px solid #3a4456;
+            border-radius: 6px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-btn:hover {
+            border-color: #6eb5ff;
+        }
+
+        .role-btn.active {
+            background: #6eb5ff;
+            border-color: #6eb5ff;
+            color: #0f1419;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #6eb5ff;
+            border: none;
+            border-radius: 6px;
+            color: #0f1419;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #5da5ef;
+        }
+
+        .btn:disabled {
+            background: #3a4456;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #1a1f2e;
+            border-radius: 12px;
+        }
+
+        .room-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .room-code {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+
+        .room-code span {
+            color: #6eb5ff;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #242b3d;
+            border: 1px solid #3a4456;
+            border-radius: 6px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            border-color: #6eb5ff;
+            background: #2a3245;
+        }
+
+        .controls button.primary {
+            background: #6eb5ff;
+            border-color: #6eb5ff;
+            color: #0f1419;
+        }
+
+        .controls button.primary:hover {
+            background: #5da5ef;
+        }
+
+        /* Poker Table */
+        .poker-table {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 0;
+        }
+
+        .center-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #242b3d;
+            padding: 60px 120px;
+            border-radius: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .result {
+            font-size: 72px;
+            font-weight: 700;
+            color: #6eb5ff;
+        }
+
+        .status {
+            margin-top: 12px;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        /* Player Positions */
+        .players-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        .player {
+            position: absolute;
+            text-align: center;
+        }
+
+        .player:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+        .player:nth-child(2) { top: 10%; left: 75%; }
+        .player:nth-child(3) { top: 50%; left: 85%; transform: translateY(-50%); }
+        .player:nth-child(4) { bottom: 10%; left: 75%; }
+        .player:nth-child(5) { bottom: 0; left: 50%; transform: translateX(-50%); }
+        .player:nth-child(6) { bottom: 10%; left: 15%; }
+        .player:nth-child(7) { top: 50%; left: 5%; transform: translateY(-50%); }
+        .player:nth-child(8) { top: 10%; left: 15%; }
+
+        .card {
+            width: 80px;
+            height: 120px;
+            background: #242b3d;
+            border: 2px solid #6eb5ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #6eb5ff;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .card.hidden {
+            background: #1a1f2e;
+            border-color: #3a4456;
+            color: transparent;
+        }
+
+        .card.voted {
+            border-color: #4ade80;
+        }
+
+        .player-name {
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+
+        .player.host .player-name::after {
+            content: " 👑";
+        }
+
+        /* Vote Panel */
+        .vote-panel {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: #1a1f2e;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .vote-panel.active {
+            display: block;
+        }
+
+        .vote-panel h3 {
+            margin-bottom: 20px;
+            color: #6eb5ff;
+        }
+
+        .vote-options {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .vote-btn {
+            width: 70px;
+            height: 100px;
+            background: #242b3d;
+            border: 2px solid #3a4456;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vote-btn:hover {
+            border-color: #6eb5ff;
+            transform: translateY(-4px);
+        }
+
+        .vote-btn.selected {
+            background: #6eb5ff;
+            border-color: #6eb5ff;
+            color: #0f1419;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Join Screen -->
+    <div class="container">
+        <div class="join-screen" id="joinScreen">
+            <h1>Planning Poker</h1>
+            <form id="joinForm">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="nameInput" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <label>Join as</label>
+                    <div class="role-selector">
+                        <button type="button" class="role-btn active" data-role="host">Host</button>
+                        <button type="button" class="role-btn" data-role="member">Member</button>
+                    </div>
+                </div>
+                <div class="form-group" id="roomCodeGroup" style="display: none;">
+                    <label>Room Code</label>
+                    <input type="text" id="roomCodeInput" placeholder="Enter room code">
+                </div>
+                <button type="submit" class="btn">Join Session</button>
+            </form>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="header">
+                <div class="room-info">
+                    <div class="room-code">Room: <span id="displayRoomCode"></span></div>
+                </div>
+                <div class="controls" id="hostControls" style="display: none;">
+                    <button id="startBtn">Start Voting</button>
+                    <button id="revealBtn" style="display: none;" class="primary">Reveal</button>
+                    <button id="resetBtn" style="display: none;">New Round</button>
+                </div>
+            </div>
+
+            <div class="poker-table">
+                <div class="players-container" id="playersContainer">
+                    <!-- Players will be added here dynamically -->
+                </div>
+                <div class="center-area">
+                    <div class="result" id="result">?</div>
+                    <div class="status" id="status">Waiting to start...</div>
+                </div>
+            </div>
+
+            <div class="vote-panel" id="votePanel">
+                <h3>Select Your Estimate</h3>
+                <div class="vote-options">
+                    <button class="vote-btn" data-vote="0">0</button>
+                    <button class="vote-btn" data-vote="1">1</button>
+                    <button class="vote-btn" data-vote="2">2</button>
+                    <button class="vote-btn" data-vote="3">3</button>
+                    <button class="vote-btn" data-vote="5">5</button>
+                    <button class="vote-btn" data-vote="8">8</button>
+                    <button class="vote-btn" data-vote="13">13</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
