@@ -6,7 +6,6 @@ let currentPlayer = {
 };
 let roomCode = '';
 let countdownTimer = null;
-let emojiPickerTimer = null;
 
 // Join Screen Logic
 const joinForm = document.getElementById('joinForm');
@@ -233,43 +232,6 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = isCurrentPlayer ? `${player.name} (You)` : player.name;
 
-        // Add emoji picker only for other players (not current user)
-        if (player.name !== currentPlayer.name) {
-            const emojiPicker = document.createElement('div');
-            emojiPicker.className = 'emoji-picker';
-            const emojis = ['🎯', '✈️', '🧻', '😂', '😊'];
-            emojis.forEach(emoji => {
-                const btn = document.createElement('button');
-                btn.className = 'emoji-btn';
-                btn.textContent = emoji;
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    throwEmoji(emoji, emojiPicker, card);
-                    // Don't hide picker - allow rapid clicks
-                };
-                emojiPicker.appendChild(btn);
-            });
-
-            // Handle hover with auto-dismiss
-            playerDiv.addEventListener('mouseenter', () => {
-                showEmojiPicker(emojiPicker);
-            });
-
-            playerDiv.addEventListener('mouseleave', () => {
-                startEmojiPickerDismissTimer(emojiPicker);
-            });
-
-            emojiPicker.addEventListener('mouseenter', () => {
-                clearEmojiPickerTimer();
-            });
-
-            emojiPicker.addEventListener('mouseleave', () => {
-                hideEmojiPicker(emojiPicker);
-            });
-
-            playerDiv.appendChild(emojiPicker);
-        }
-
         playerDiv.appendChild(card);
         playerDiv.appendChild(nameDiv);
         playersContainer.appendChild(playerDiv);
@@ -466,91 +428,3 @@ function openVotePanelForEdit() {
     votePanel.classList.add('active');
 }
 
-// Emoji picker show/hide functions
-function showEmojiPicker(picker) {
-    clearEmojiPickerTimer();
-    picker.classList.add('visible');
-    startEmojiPickerDismissTimer(picker);
-}
-
-function hideEmojiPicker(picker) {
-    clearEmojiPickerTimer();
-    picker.classList.remove('visible');
-}
-
-function startEmojiPickerDismissTimer(picker) {
-    clearEmojiPickerTimer();
-    emojiPickerTimer = setTimeout(() => {
-        picker.classList.remove('visible');
-    }, 3000);
-}
-
-function clearEmojiPickerTimer() {
-    if (emojiPickerTimer) {
-        clearTimeout(emojiPickerTimer);
-        emojiPickerTimer = null;
-    }
-}
-
-// Emoji throwing animation
-function throwEmoji(emoji, sourcePicker, targetCard) {
-    const flyingEmoji = document.createElement('div');
-    flyingEmoji.textContent = emoji;
-
-    const targetRect = targetCard.getBoundingClientRect();
-    const targetX = targetRect.left + targetRect.width / 2;
-    const targetY = targetRect.top + targetRect.height / 2;
-
-    // Spawn from random edge outside viewport
-    const edges = ['top', 'right', 'bottom', 'left'];
-    const edge = edges[Math.floor(Math.random() * edges.length)];
-
-    let startX, startY;
-    switch(edge) {
-        case 'top':
-            startX = Math.random() * window.innerWidth;
-            startY = -100;
-            break;
-        case 'right':
-            startX = window.innerWidth + 100;
-            startY = Math.random() * window.innerHeight;
-            break;
-        case 'bottom':
-            startX = Math.random() * window.innerWidth;
-            startY = window.innerHeight + 100;
-            break;
-        case 'left':
-            startX = -100;
-            startY = Math.random() * window.innerHeight;
-            break;
-    }
-
-    flyingEmoji.style.cssText = `
-        position: fixed !important;
-        left: ${startX}px;
-        top: ${startY}px;
-        font-size: 56px;
-        pointer-events: none;
-        z-index: 999999;
-        filter: drop-shadow(0 0 10px rgba(234, 88, 12, 0.9));
-        transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        transform: scale(1);
-        opacity: 1;
-    `;
-
-    document.body.appendChild(flyingEmoji);
-
-    // Trigger animation after element is in DOM
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            flyingEmoji.style.left = (targetX - 28) + 'px';  // Center emoji (56px / 2)
-            flyingEmoji.style.top = (targetY - 28) + 'px';
-            flyingEmoji.style.transform = 'rotate(720deg) scale(0.4)';
-            flyingEmoji.style.opacity = '0';
-        });
-    });
-
-    setTimeout(() => {
-        flyingEmoji.remove();
-    }, 1300);
-}
