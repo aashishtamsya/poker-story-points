@@ -115,6 +115,22 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = player.name;
 
+        // Add emoji picker
+        const emojiPicker = document.createElement('div');
+        emojiPicker.className = 'emoji-picker';
+        const emojis = ['🎯', '✈️', '🧻', '😂', '😊'];
+        emojis.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.className = 'emoji-btn';
+            btn.textContent = emoji;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                throwEmoji(emoji, btn, card);
+            };
+            emojiPicker.appendChild(btn);
+        });
+
+        playerDiv.appendChild(emojiPicker);
         playerDiv.appendChild(card);
         playerDiv.appendChild(nameDiv);
         playersContainer.appendChild(playerDiv);
@@ -287,3 +303,30 @@ document.querySelectorAll('.vote-btn').forEach(btn => {
         }));
     });
 });
+
+// Emoji throwing animation
+function throwEmoji(emoji, sourceBtn, targetCard) {
+    const flyingEmoji = document.createElement('div');
+    flyingEmoji.className = 'flying-emoji';
+    flyingEmoji.textContent = emoji;
+
+    const sourceRect = sourceBtn.getBoundingClientRect();
+    const targetRect = targetCard.getBoundingClientRect();
+
+    flyingEmoji.style.left = sourceRect.left + sourceRect.width / 2 + 'px';
+    flyingEmoji.style.top = sourceRect.top + sourceRect.height / 2 + 'px';
+
+    const deltaX = targetRect.left + targetRect.width / 2 - (sourceRect.left + sourceRect.width / 2);
+    const deltaY = targetRect.top + targetRect.height / 2 - (sourceRect.top + sourceRect.height / 2);
+
+    flyingEmoji.style.setProperty('--mid-x', (deltaX * 0.5) + 'px');
+    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 40) + 'px');
+    flyingEmoji.style.setProperty('--target-x', deltaX + 'px');
+    flyingEmoji.style.setProperty('--target-y', deltaY + 'px');
+
+    document.body.appendChild(flyingEmoji);
+
+    setTimeout(() => {
+        flyingEmoji.remove();
+    }, 800);
+}

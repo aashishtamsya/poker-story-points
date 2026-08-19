@@ -330,6 +330,12 @@
         .player {
             position: absolute;
             text-align: center;
+            cursor: pointer;
+        }
+
+        .player:hover .emoji-picker {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .player:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
@@ -564,6 +570,65 @@
         .stat-label {
             font-size: 12px;
             color: var(--text-muted);
+        }
+
+        /* Emoji Reactions */
+        .emoji-picker {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 200ms ease;
+            z-index: 10;
+        }
+
+        .emoji-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 180ms ease;
+            border: 2px solid transparent;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.2);
+            border-color: var(--primary);
+        }
+
+        .flying-emoji {
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: fly-to-target 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes fly-to-target {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(var(--mid-x), var(--mid-y)) rotate(180deg) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--target-x), var(--target-y)) rotate(360deg) scale(0.5);
+            }
         }
 
         /* Responsive */
