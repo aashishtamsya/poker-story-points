@@ -144,8 +144,8 @@ function updateRoomState(state) {
             btn.textContent = emoji;
             btn.onclick = (e) => {
                 e.stopPropagation();
-                throwEmoji(emoji, btn, card);
-                hideEmojiPicker(emojiPicker);
+                throwEmoji(emoji, emojiPicker, card);
+                // Don't hide picker - allow rapid clicks
             };
             emojiPicker.appendChild(btn);
         });
@@ -375,22 +375,30 @@ function clearEmojiPickerTimer() {
 }
 
 // Emoji throwing animation
-function throwEmoji(emoji, sourceBtn, targetCard) {
+function throwEmoji(emoji, sourcePicker, targetCard) {
     const flyingEmoji = document.createElement('div');
     flyingEmoji.className = 'flying-emoji';
     flyingEmoji.textContent = emoji;
 
-    const sourceRect = sourceBtn.getBoundingClientRect();
+    const sourceRect = sourcePicker.getBoundingClientRect();
     const targetRect = targetCard.getBoundingClientRect();
 
-    flyingEmoji.style.left = sourceRect.left + sourceRect.width / 2 + 'px';
-    flyingEmoji.style.top = sourceRect.top + sourceRect.height / 2 + 'px';
+    // Start from center of picker
+    const startX = sourceRect.left + sourceRect.width / 2;
+    const startY = sourceRect.top + sourceRect.height / 2;
 
-    const deltaX = targetRect.left + targetRect.width / 2 - (sourceRect.left + sourceRect.width / 2);
-    const deltaY = targetRect.top + targetRect.height / 2 - (sourceRect.top + sourceRect.height / 2);
+    flyingEmoji.style.left = startX + 'px';
+    flyingEmoji.style.top = startY + 'px';
+
+    // Target center of card
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    const deltaX = targetX - startX;
+    const deltaY = targetY - startY;
 
     flyingEmoji.style.setProperty('--mid-x', (deltaX * 0.5) + 'px');
-    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 40) + 'px');
+    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 60) + 'px');
     flyingEmoji.style.setProperty('--target-x', deltaX + 'px');
     flyingEmoji.style.setProperty('--target-y', deltaY + 'px');
 
