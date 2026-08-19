@@ -233,7 +233,7 @@ function updateRoomState(state) {
         nameDiv.className = 'player-name';
         nameDiv.textContent = isCurrentPlayer ? `${player.name} (You)` : player.name;
 
-        // Add emoji picker for other players with flying animation
+        // Add emoji picker for other players (simple pop, no flying)
         if (player.name !== currentPlayer.name) {
             const emojiPicker = document.createElement('div');
             emojiPicker.className = 'emoji-picker';
@@ -244,7 +244,7 @@ function updateRoomState(state) {
                 btn.textContent = emoji;
                 btn.onclick = (e) => {
                     e.stopPropagation();
-                    throwEmojiFromPicker(emoji, btn, card);
+                    showEmojiOnCard(emoji, card);
                 };
                 emojiPicker.appendChild(btn);
             });
@@ -490,79 +490,7 @@ function triggerConfetti() {
 
 
 // Throw emoji from screen edge to target card with bounce
-function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
-    console.log('=== EMOJI THROW ===');
-
-    const flyingEmoji = document.createElement('div');
-    flyingEmoji.textContent = emoji;
-
-    // Get target position (top of card for bounce effect)
-    const cardRect = targetCard.getBoundingClientRect();
-    const impactX = cardRect.left + cardRect.width / 2;
-    const impactY = cardRect.top - 10; // Hit top edge
-
-    // Start from random screen edge
-    const edges = ['top', 'right', 'bottom', 'left'];
-    const edge = edges[Math.floor(Math.random() * edges.length)];
-
-    let startX, startY;
-    switch(edge) {
-        case 'top':
-            startX = Math.random() * window.innerWidth;
-            startY = -80;
-            break;
-        case 'right':
-            startX = window.innerWidth + 80;
-            startY = Math.random() * window.innerHeight;
-            break;
-        case 'bottom':
-            startX = Math.random() * window.innerWidth;
-            startY = window.innerHeight + 80;
-            break;
-        case 'left':
-            startX = -80;
-            startY = Math.random() * window.innerHeight;
-            break;
-    }
-
-    console.log('Flying from', edge, '→ card');
-
-    // Initial position
-    flyingEmoji.style.cssText = `
-        position: fixed;
-        left: ${startX}px;
-        top: ${startY}px;
-        font-size: 32px;
-        pointer-events: none;
-        z-index: 999999;
-        transform: translate(-50%, -50%) rotate(0deg);
-        opacity: 1;
-        filter: drop-shadow(0 2px 8px rgba(234, 88, 12, 0.8));
-    `;
-
-    document.body.appendChild(flyingEmoji);
-
-    // Phase 1: Fly to card (600ms)
-    setTimeout(() => {
-        flyingEmoji.style.transition = 'all 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        flyingEmoji.style.left = impactX + 'px';
-        flyingEmoji.style.top = impactY + 'px';
-        flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(360deg) scale(1.2)';
-    }, 10);
-
-    // Phase 2: Bounce and fall (400ms)
-    setTimeout(() => {
-        flyingEmoji.style.transition = 'all 400ms cubic-bezier(0.6, 0.04, 0.98, 0.34)';
-        flyingEmoji.style.top = (impactY + 80) + 'px';
-        flyingEmoji.style.transform = 'translate(-50%, -50%) rotate(400deg) scale(0.6)';
-        flyingEmoji.style.opacity = '0';
-    }, 620);
-
-    // Cleanup
-    setTimeout(() => flyingEmoji.remove(), 1100);
-}
-
-// Show emoji briefly on target card (fallback)
+// Show emoji on target card with pop animation
 function showEmojiOnCard(emoji, card) {
     const emojiEl = document.createElement('div');
     emojiEl.textContent = emoji;
