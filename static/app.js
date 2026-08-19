@@ -189,7 +189,8 @@ function updateRoomState(state) {
 
     state.players.forEach((player, index) => {
         const playerDiv = document.createElement('div');
-        playerDiv.className = `player ${player.isHost ? 'host' : ''}`;
+        const isCurrentPlayer = player.name === currentPlayer.name;
+        playerDiv.className = `player ${player.isHost ? 'host' : ''} ${isCurrentPlayer ? 'current-player' : ''}`;
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -224,7 +225,7 @@ function updateRoomState(state) {
 
         const nameDiv = document.createElement('div');
         nameDiv.className = 'player-name';
-        nameDiv.textContent = player.name;
+        nameDiv.textContent = isCurrentPlayer ? `${player.name} (You)` : player.name;
 
         // Add emoji picker only for other players (not current user)
         if (player.name !== currentPlayer.name) {

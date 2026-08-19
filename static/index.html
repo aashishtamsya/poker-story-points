@@ -509,6 +509,18 @@
             overflow: visible;
         }
 
+        /* Current player highlight */
+        .current-player .card {
+            border: 3px solid var(--accent);
+            box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2),
+                        0 4px 12px rgba(234, 88, 12, 0.3);
+        }
+
+        .current-player .player-name {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
         .edit-vote-btn {
             position: absolute;
             top: -12px;
