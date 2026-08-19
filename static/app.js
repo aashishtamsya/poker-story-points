@@ -489,7 +489,7 @@ function triggerConfetti() {
 }
 
 
-// Throw emoji from picker button to target card
+// Throw emoji from screen edge to target card
 function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
     console.log('=== EMOJI THROW DEBUG ===');
     console.log('Emoji:', emoji);
@@ -497,33 +497,54 @@ function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
     const flyingEmoji = document.createElement('div');
     flyingEmoji.textContent = emoji;
 
-    // Get start and end positions
-    const btnRect = sourceBtn.getBoundingClientRect();
+    // Get target position
     const cardRect = targetCard.getBoundingClientRect();
-
-    const startX = btnRect.left + btnRect.width / 2;
-    const startY = btnRect.top + btnRect.height / 2;
     const endX = cardRect.left + cardRect.width / 2;
     const endY = cardRect.top + cardRect.height / 2;
 
+    // Start from random screen edge
+    const edges = ['top', 'right', 'bottom', 'left'];
+    const edge = edges[Math.floor(Math.random() * edges.length)];
+
+    let startX, startY;
+    switch(edge) {
+        case 'top':
+            startX = Math.random() * window.innerWidth;
+            startY = -50;
+            break;
+        case 'right':
+            startX = window.innerWidth + 50;
+            startY = Math.random() * window.innerHeight;
+            break;
+        case 'bottom':
+            startX = Math.random() * window.innerWidth;
+            startY = window.innerHeight + 50;
+            break;
+        case 'left':
+            startX = -50;
+            startY = Math.random() * window.innerHeight;
+            break;
+    }
+
+    console.log('Edge:', edge);
     console.log('Start:', startX, startY);
     console.log('End:', endX, endY);
 
-    // Inline styles for maximum visibility
+    // Inline styles - 24px (90/4 ≈ 22.5px)
     flyingEmoji.style.cssText = `
         position: fixed;
         left: ${startX}px;
         top: ${startY}px;
-        font-size: 64px;
+        font-size: 24px;
         color: #EA580C;
         background: rgba(255, 0, 0, 0.3);
-        padding: 10px;
-        border: 3px solid yellow;
+        padding: 4px;
+        border: 2px solid yellow;
         pointer-events: none;
         z-index: 999999;
         transform: translate(-50%, -50%);
         opacity: 1;
-        transition: all 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: all 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
     `;
 
     document.body.appendChild(flyingEmoji);
@@ -534,18 +555,18 @@ function throwEmojiFromPicker(emoji, sourceBtn, targetCard) {
     // Trigger animation after render
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            console.log('Animation starting...');
+            console.log('Animation starting to', endX, endY);
             flyingEmoji.style.left = endX + 'px';
             flyingEmoji.style.top = endY + 'px';
-            flyingEmoji.style.transform = 'translate(-50%, -50%) scale(1.8) rotate(360deg)';
-            flyingEmoji.style.opacity = '0.3';
+            flyingEmoji.style.transform = 'translate(-50%, -50%) scale(1.5) rotate(360deg)';
+            flyingEmoji.style.opacity = '0.2';
         });
     });
 
     setTimeout(() => {
         console.log('Removing emoji');
         flyingEmoji.remove();
-    }, 1000);
+    }, 1200);
 }
 
 // Show emoji briefly on target card (fallback)
