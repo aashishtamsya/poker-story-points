@@ -396,25 +396,42 @@ function throwEmoji(emoji, sourcePicker, targetCard) {
     flyingEmoji.className = 'flying-emoji';
     flyingEmoji.textContent = emoji;
 
-    const sourceRect = sourcePicker.getBoundingClientRect();
     const targetRect = targetCard.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
 
-    // Start from center of picker
-    const startX = sourceRect.left + sourceRect.width / 2;
-    const startY = sourceRect.top + sourceRect.height / 2;
+    // Spawn from random edge outside viewport
+    const edges = ['top', 'right', 'bottom', 'left'];
+    const edge = edges[Math.floor(Math.random() * edges.length)];
+
+    let startX, startY;
+    switch(edge) {
+        case 'top':
+            startX = Math.random() * window.innerWidth;
+            startY = -100;
+            break;
+        case 'right':
+            startX = window.innerWidth + 100;
+            startY = Math.random() * window.innerHeight;
+            break;
+        case 'bottom':
+            startX = Math.random() * window.innerWidth;
+            startY = window.innerHeight + 100;
+            break;
+        case 'left':
+            startX = -100;
+            startY = Math.random() * window.innerHeight;
+            break;
+    }
 
     flyingEmoji.style.left = startX + 'px';
     flyingEmoji.style.top = startY + 'px';
-
-    // Target center of card
-    const targetX = targetRect.left + targetRect.width / 2;
-    const targetY = targetRect.top + targetRect.height / 2;
 
     const deltaX = targetX - startX;
     const deltaY = targetY - startY;
 
     flyingEmoji.style.setProperty('--mid-x', (deltaX * 0.5) + 'px');
-    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 60) + 'px');
+    flyingEmoji.style.setProperty('--mid-y', (deltaY * 0.5 - 80) + 'px');
     flyingEmoji.style.setProperty('--target-x', deltaX + 'px');
     flyingEmoji.style.setProperty('--target-y', deltaY + 'px');
 
