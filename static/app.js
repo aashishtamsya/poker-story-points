@@ -24,6 +24,12 @@ if (urlRoom) {
     roomCodeInput.value = urlRoom;
     roomCodeGroup.classList.remove('hidden');
 
+    // Hide Host button when joining via shared link
+    const hostBtn = document.querySelector('.role-btn[data-role="host"]');
+    if (hostBtn) {
+        hostBtn.style.display = 'none';
+    }
+
     if (urlRole === 'member' || urlRole === 'spectator') {
         roleBtns.forEach(b => {
             b.classList.remove('active');
