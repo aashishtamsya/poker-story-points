@@ -144,22 +144,22 @@ func dialTwoTestClients(t *testing.T) (c1, c2 *websocket.Conn, closeFn func()) {
 	t.Helper()
 	var upg websocket.Upgrader
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if _, err := upg.Upgrade(w, r, nil); err != nil {
+		conn, err := upg.Upgrade(w, r, nil)
+		if err != nil {
 			return
 		}
-		// Keep the server-side connection open until the test closes it.
-		select {}
+		// Block until the client closes, so the handler goroutine (and
+		// its connection) doesn't outlive the test.
+		for {
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+		}
 	}))
 
 	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http")
-	c1, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
-	if err != nil {
-		t.Fatalf("dial client1: %v", err)
-	}
-	c2, _, err = websocket.DefaultDialer.Dial(wsURL, nil)
-	if err != nil {
-		t.Fatalf("dial client2: %v", err)
-	}
+	c1 = dialWS(t, wsURL)
+	c2 = dialWS(t, wsURL)
 	return c1, c2, func() {
 		c1.Close()
 		c2.Close()
