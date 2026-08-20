@@ -46,6 +46,7 @@ func checkOrigin(r *http.Request) bool {
 }
 
 type Player struct {
+	ID          string          `json:"id"`
 	Name        string          `json:"name"`
 	IsHost      bool            `json:"isHost"`
 	IsSpectator bool            `json:"isSpectator"`
@@ -127,6 +128,16 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				continue
 			}
+			name = strings.TrimSpace(name)
+			if name == "" || len(name) > 50 {
+				conn.WriteJSON(Message{
+					Type: "error",
+					Data: map[string]interface{}{
+						"message": "Name must be between 1 and 50 characters",
+					},
+				})
+				continue
+			}
 			isSpectator, _ := data["isSpectator"].(bool)
 			roomCode, ok := data["roomCode"].(string)
 			if !ok {
@@ -139,6 +150,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 			room = getOrCreateRoom(roomCode)
 			player = &Player{
+				ID:          randomString(16),
 				Name:        name,
 				IsSpectator: isSpectator,
 				Conn:        conn,
@@ -149,7 +161,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			// Host status is decided server-side: the first player to join a
 			// room becomes host. The client-supplied isHost flag is ignored.
 			player.IsHost = len(room.Players) == 0
-			room.Players[name] = player
+			room.Players[player.ID] = player
 			room.mu.Unlock()
 			isHost := player.IsHost
 
@@ -161,6 +173,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 					Data: map[string]interface{}{
 						"roomCode": roomCode,
 						"isHost":   isHost,
+						"playerId": player.ID,
 					},
 				})
 			}()
@@ -256,6 +269,7 @@ func broadcastRoomState(room *Room) {
 	players := make([]map[string]interface{}, 0)
 	for _, p := range room.Players {
 		playerData := map[string]interface{}{
+			"id":     p.ID,
 			"name":   p.Name,
 			"isHost": p.IsHost,
 		}
@@ -287,7 +301,7 @@ func broadcastRoomState(room *Room) {
 
 func removePlayer(room *Room, player *Player) {
 	room.mu.Lock()
-	delete(room.Players, player.Name)
+	delete(room.Players, player.ID)
 	isEmpty := len(room.Players) == 0
 	room.mu.Unlock()
 
