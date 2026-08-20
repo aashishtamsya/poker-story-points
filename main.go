@@ -116,15 +116,17 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			room.Players[name] = player
 			room.mu.Unlock()
 
-			player.writeMu.Lock()
-			conn.WriteJSON(Message{
-				Type: "joined",
-				Data: map[string]interface{}{
-					"roomCode": roomCode,
-					"isHost":   isHost,
-				},
-			})
-			player.writeMu.Unlock()
+			func() {
+				player.writeMu.Lock()
+				defer player.writeMu.Unlock()
+				conn.WriteJSON(Message{
+					Type: "joined",
+					Data: map[string]interface{}{
+						"roomCode": roomCode,
+						"isHost":   isHost,
+					},
+				})
+			}()
 
 			broadcastRoomState(room)
 
@@ -238,9 +240,11 @@ func broadcastRoomState(room *Room) {
 	}
 
 	for _, p := range room.Players {
-		p.writeMu.Lock()
-		p.Conn.WriteJSON(msg)
-		p.writeMu.Unlock()
+		func() {
+			p.writeMu.Lock()
+			defer p.writeMu.Unlock()
+			p.Conn.WriteJSON(msg)
+		}()
 	}
 }
 
