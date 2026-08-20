@@ -22,6 +22,7 @@ type Player struct {
 	Vote        *int            `json:"vote,omitempty"`
 	Conn        *websocket.Conn `json:"-"`
 	RoomCode    string          `json:"-"`
+	writeMu     sync.Mutex      `json:"-"`
 }
 
 type Room struct {
@@ -115,6 +116,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			room.Players[name] = player
 			room.mu.Unlock()
 
+			player.writeMu.Lock()
 			conn.WriteJSON(Message{
 				Type: "joined",
 				Data: map[string]interface{}{
@@ -122,6 +124,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 					"isHost":   isHost,
 				},
 			})
+			player.writeMu.Unlock()
 
 			broadcastRoomState(room)
 
@@ -235,7 +238,9 @@ func broadcastRoomState(room *Room) {
 	}
 
 	for _, p := range room.Players {
+		p.writeMu.Lock()
 		p.Conn.WriteJSON(msg)
+		p.writeMu.Unlock()
 	}
 }
 
