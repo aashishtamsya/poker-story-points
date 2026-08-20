@@ -278,8 +278,13 @@ function updateRoomState(state) {
     // Update center area and stats
     const result = document.getElementById('result');
     const bottomStats = document.getElementById('bottomStats');
+    const cardShowcase = document.getElementById('cardShowcase');
+
+    const centerArea = document.querySelector('.center-area');
 
     if (state.revealed) {
+        cardShowcase.classList.remove('active');
+        centerArea.classList.remove('showcase-active');
         if (countdownTimer) {
             clearInterval(countdownTimer);
             countdownTimer = null;
@@ -312,6 +317,8 @@ function updateRoomState(state) {
         }
     } else if (state.votingActive) {
         result.textContent = '?';
+        cardShowcase.classList.remove('active');
+        centerArea.classList.remove('showcase-active');
         bottomStats.classList.remove('active');
         const votedCount = state.players.filter(p => p.hasVoted || p.vote !== undefined).length;
         const allVoted = votedCount === state.players.length && state.players.length > 0;
@@ -328,6 +335,8 @@ function updateRoomState(state) {
             countdownTimer = null;
         }
         result.textContent = '?';
+        cardShowcase.classList.add('active');
+        centerArea.classList.add('showcase-active');
         bottomStats.classList.remove('active');
         document.getElementById('cornerStats').classList.remove('active');
         confettiFired = false; // Reset for next round
