@@ -60,6 +60,11 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("recovered from panic in handleWebSocket:", err)
+		}
+	}()
 
 	var player *Player
 	var room *Room
@@ -75,11 +80,23 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		switch msg.Type {
 		case "join":
-			data := msg.Data.(map[string]interface{})
-			name := data["name"].(string)
-			isHost := data["isHost"].(bool)
+			data, ok := msg.Data.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			name, ok := data["name"].(string)
+			if !ok {
+				continue
+			}
+			isHost, ok := data["isHost"].(bool)
+			if !ok {
+				continue
+			}
 			isSpectator, _ := data["isSpectator"].(bool)
-			roomCode := data["roomCode"].(string)
+			roomCode, ok := data["roomCode"].(string)
+			if !ok {
+				continue
+			}
 
 			if roomCode == "" {
 				roomCode = generateRoomCode()
@@ -122,7 +139,15 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		case "vote":
 			if player != nil && room != nil && room.VotingActive {
-				vote := int(msg.Data.(map[string]interface{})["vote"].(float64))
+				data, ok := msg.Data.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				voteVal, ok := data["vote"].(float64)
+				if !ok {
+					continue
+				}
+				vote := int(voteVal)
 				room.mu.Lock()
 				player.Vote = &vote
 
