@@ -1,5 +1,6 @@
 let ws;
 let currentPlayer = {
+    id: '',
     name: '',
     isHost: false,
     isSpectator: false
@@ -169,7 +170,12 @@ function connectWebSocket() {
 
 function handleMessage(msg) {
     switch (msg.type) {
+        case 'error':
+            alert(msg.data.message);
+            break;
+
         case 'joined':
+            currentPlayer.id = msg.data.playerId;
             roomCode = msg.data.roomCode;
             document.getElementById('joinScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
@@ -215,7 +221,8 @@ function updateRoomState(state) {
 
     state.players.forEach((player, index) => {
         const playerDiv = document.createElement('div');
-        const isCurrentPlayer = player.name === currentPlayer.name;
+        playerDiv.dataset.playerId = player.id;
+        const isCurrentPlayer = player.id === currentPlayer.id;
         playerDiv.className = `player ${player.isHost ? 'host' : ''} ${isCurrentPlayer ? 'current-player' : ''}`;
 
         const card = document.createElement('div');
@@ -223,14 +230,14 @@ function updateRoomState(state) {
 
         // Trigger ripple if vote changed
         if (player.vote !== undefined && !state.revealed) {
-            const prevVote = previousVotes.get(player.name);
+            const prevVote = previousVotes.get(player.id);
             if (prevVote !== player.vote) {
-                previousVotes.set(player.name, player.vote);
+                previousVotes.set(player.id, player.vote);
                 // Trigger ripple after DOM render
                 setTimeout(() => {
-                    const renderedCard = Array.from(playersContainer.querySelectorAll('.player')).find(
-                        p => p.querySelector('.player-name')?.textContent.includes(player.name)
-                    )?.querySelector('.card');
+                    const renderedCard = playersContainer.querySelector(
+                        `.player[data-player-id="${player.id}"] .card`
+                    );
                     if (renderedCard) {
                         triggerRipple(renderedCard, player.vote);
                     }
@@ -242,7 +249,7 @@ function updateRoomState(state) {
             card.textContent = player.vote;
 
             // Add edit button for current player
-            if (player.name === currentPlayer.name) {
+            if (player.id === currentPlayer.id) {
                 const editBtn = document.createElement('button');
                 editBtn.className = 'edit-vote-btn';
                 editBtn.onclick = (e) => {
@@ -353,7 +360,7 @@ function updateRoomState(state) {
     // Don't hide panel if revealed - let user keep it open to edit
 
     // Restore selected vote button state
-    const currentPlayerData = state.players.find(p => p.name === currentPlayer.name);
+    const currentPlayerData = state.players.find(p => p.id === currentPlayer.id);
     if (currentPlayerData && currentPlayerData.vote !== undefined) {
         document.querySelectorAll('.vote-btn').forEach(btn => {
             if (parseInt(btn.dataset.vote) === currentPlayerData.vote) {
