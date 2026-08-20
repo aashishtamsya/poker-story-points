@@ -5,14 +5,43 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: checkOrigin,
+}
+
+// checkOrigin allows requests with no Origin header (non-browser clients),
+// requests listed in the comma-separated ALLOWED_ORIGIN env var, and
+// requests whose Origin host matches the request's own Host (same-host
+// deployments/local dev) by default.
+func checkOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return true
+	}
+
+	originURL, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+
+	if allowed := os.Getenv("ALLOWED_ORIGIN"); allowed != "" {
+		for _, o := range strings.Split(allowed, ",") {
+			if strings.TrimSpace(o) == origin {
+				return true
+			}
+		}
+		return false
+	}
+
+	return originURL.Host == r.Host
 }
 
 type Player struct {
