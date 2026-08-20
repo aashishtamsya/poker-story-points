@@ -89,10 +89,6 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				continue
 			}
-			isHost, ok := data["isHost"].(bool)
-			if !ok {
-				continue
-			}
 			isSpectator, _ := data["isSpectator"].(bool)
 			roomCode, ok := data["roomCode"].(string)
 			if !ok {
@@ -106,15 +102,18 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			room = getOrCreateRoom(roomCode)
 			player = &Player{
 				Name:        name,
-				IsHost:      isHost,
 				IsSpectator: isSpectator,
 				Conn:        conn,
 				RoomCode:    roomCode,
 			}
 
 			room.mu.Lock()
+			// Host status is decided server-side: the first player to join a
+			// room becomes host. The client-supplied isHost flag is ignored.
+			player.IsHost = len(room.Players) == 0
 			room.Players[name] = player
 			room.mu.Unlock()
+			isHost := player.IsHost
 
 			func() {
 				player.writeMu.Lock()
